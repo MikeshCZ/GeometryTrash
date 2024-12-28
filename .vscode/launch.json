@@ -1,0 +1,45 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  // For Windows:
+  //   Install https://www.msys2.org/
+  //
+  //   When MSYS2 is ready for you run terminal for the UCRT64 environment and run install command:
+  //     pacman -S mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-gdb mingw-w64-ucrt-x86_64-lldb
+  //
+  //   Set up Windows System Environment PATH: 
+  //     C:\msys64\ucrt64\bin; c:\msys64\usr\bin
+  
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "preLaunchTask": "build-win",
+      "name": "Build and Launch (WIN)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/${workspaceFolderBasename}.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/build",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+      "miDebuggerArgs": ""
+    },
+    {
+      "preLaunchTask": "build-mac",
+      "name": "Build and Launch (MAC)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/${workspaceFolderBasename}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/build",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    }
+  ]
+}
