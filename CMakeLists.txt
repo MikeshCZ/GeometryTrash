@@ -9,11 +9,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(SOURCES
     src/main.cpp
     src/intro.cpp
+    src/Ball.cpp
 )
 
 # Add header files
 set(HEADERS
     src/intro.hpp
+    src/Ball.hpp
 )
 
 # Create executable
