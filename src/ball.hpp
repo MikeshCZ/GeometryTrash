@@ -37,9 +37,5 @@ public:
   void Jump (float groundLevel);                    // metoda pro skok
   Vector2
   GetCurrentSpeed (float deltaTime) const; // Výpočet aktuální rychlosti
-<<<<<<< HEAD:src/Ball.hpp
   Vector2 GetCurrentPosition () const;     // Výpočet aktuální pozice
 };
-=======
-};
->>>>>>> 5b3b60c281b6a975b91b029bc9c1913b5ff4fdee:src/ball.hpp

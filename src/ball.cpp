@@ -112,7 +112,6 @@ Ball::GetCurrentPosition () const
 
   return { x, y };
 }
-<<<<<<< HEAD:src/Ball.cpp
 
 void
 Ball::DecelX (float deltaTime)
@@ -147,5 +146,3 @@ Ball::AccelX (float direction, float deltaTime, float maxSpeed)
       speedX = -maxSpeed;
     }
 }
-=======
->>>>>>> 5b3b60c281b6a975b91b029bc9c1913b5ff4fdee:src/ball.cpp
