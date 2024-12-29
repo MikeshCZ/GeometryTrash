@@ -17,11 +17,6 @@ main ()
 {
   // === INICIALIZATION ===
 
-  // --- Flags
-
-  if (!DEBUG)
-    SetConfigFlags (FLAG_FULLSCREEN_MODE);
-
   // --- Constants & Variables ---
 
   // Musi byt inicializované okno pro zjištění rozlišení monitoru
@@ -46,14 +41,18 @@ main ()
   int playerX = WINDOW_WIDTH / 2;  // horizontální pozice hráče
   int playerY = WINDOW_HEIGHT / 2; // vertikální pozice hráče
   float playerRadius = 20.0f;      // rádius míče
-  float jumpVel = -1000.0f;        // síla skoku
+  float jumpVel = -800.0f;         // síla skoku
   float bounceFactor = 0.3f;       // faktor odrazu míče
   float squashFactor = 0.5f;       // faktor sploštění míče
   float moveSpeed = 800.0f;        // rychlost pohybu
+  float acceleration = 1500.0f;    // decelerace pohybu x
+  float deceleration = 1500.0f;    // decelerace pohybu x
 
   // --- Init Main window ---
 
   InitWindow (WINDOW_WIDTH, WINDOW_HEIGHT, windowTitle);
+  if (!DEBUG)
+    ToggleFullscreen ();
   SetTargetFPS (fps);
   SetExitKey (KEY_F10);
 
@@ -98,7 +97,8 @@ main ()
 
   // Hlavní postava hráče
   Ball player (DEBUG, WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f, playerRadius,
-               GRAVITY, jumpVel, moveSpeed, bounceFactor, squashFactor);
+               GRAVITY, jumpVel, moveSpeed, acceleration, deceleration,
+               bounceFactor, squashFactor);
 
   while (WindowShouldClose () == false)
     {
@@ -125,22 +125,32 @@ main ()
       // --- 2. Updating state ---
 
       float deltaTime = GetFrameTime ();
-      player.MoveX (horizontalInput, deltaTime);
-      player.Update (deltaTime, GROUND_LEVEL);
+      // player.MoveX (horizontalInput, deltaTime);
+      player.Update (horizontalInput, deltaTime, GROUND_LEVEL);
 
       // --- 3. Drawing ---
 
       BeginDrawing ();
-      ClearBackground (BLACK);        // Clear the background
+      ClearBackground (WHITE);        // Clear the background
       DrawFPS (WINDOW_WIDTH - 90, 5); // Write FPS to right corner
       player.Draw (deltaTime);        // Draw player
-                                      // Zobrazení rychlosti
-      DrawText (TextFormat ("Speed X: %.2f px/s",
-                            player.GetCurrentSpeed (deltaTime).x),
-                10, 40, 20, WHITE);
-      DrawText (TextFormat ("Speed Y: %.2f px/s",
-                            player.GetCurrentSpeed (deltaTime).y),
-                10, 70, 20, WHITE);
+      if (DEBUG)
+        {
+          // Zobrazení pozice
+          DrawText (TextFormat ("Position X: %.2f px",
+                                player.GetCurrentPosition ().x),
+                    10, 10, 20, GRAY);
+          DrawText (TextFormat ("Position Y: %.2f px",
+                                player.GetCurrentPosition ().y),
+                    10, 40, 20, GRAY);
+          // Zobrazení rychlosti
+          DrawText (TextFormat ("Speed X: %.2f px/s",
+                                player.GetCurrentSpeed (deltaTime).x),
+                    10, 70, 20, GRAY);
+          DrawText (TextFormat ("Speed Y: %.2f px/s",
+                                player.GetCurrentSpeed (deltaTime).y),
+                    10, 100, 20, GRAY);
+        }
       EndDrawing ();
     }
 

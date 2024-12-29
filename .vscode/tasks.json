@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "init",
+            "label": "mac-init",
             "type": "shell",
             "command": "[ ! -d 'build' ] && mkdir build ; cd build && cmake .. -DCMAKE_BUILD_TYPE=Debug",
             "group": "build",
@@ -13,19 +13,7 @@
             "problemMatcher": []
         },
         {
-            "label": "build-win",
-            "type": "shell",
-            "command": "cd build; ninja",
-            "group": "build",
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "problemMatcher": [],
-            "dependsOn": "init"
-        },
-        {
-            "label": "build-mac",
+            "label": "mac-build",
             "type": "shell",
             "command": "cd build && make -j8",
             "group": "build",
@@ -34,7 +22,30 @@
                 "panel": "dedicated"
             },
             "problemMatcher": [],
-            "dependsOn": "init"
+            "dependsOn": "mac-init"
+        },
+        {
+            "label": "win-init",
+            "type": "shell",
+            "command": "if (-not (Test-Path -Path 'build')) { New-Item -ItemType Directory -Path 'build' } ; Set-Location -Path 'build' ; cmake .. -DCMAKE_BUILD_TYPE=Debug",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "win-build",
+            "type": "shell",
+            "command": "cd build; ninja",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "dependsOn": "win-init"
         }
     ]
 }

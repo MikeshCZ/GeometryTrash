@@ -14,8 +14,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "preLaunchTask": "build-win",
-      "name": "Build and Launch (WIN)",
+      "preLaunchTask": "mac-build",
+      "name": "MAC Build and Launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/${workspaceFolderBasename}",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}/build",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "preLaunchTask": "win-build",
+      "name": "WIN Build and Launch",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/${workspaceFolderBasename}.exe",
@@ -27,19 +40,6 @@
       "MIMode": "gdb",
       "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
       "miDebuggerArgs": ""
-    },
-    {
-      "preLaunchTask": "build-mac",
-      "name": "Build and Launch (MAC)",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/${workspaceFolderBasename}",
-      "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}/build",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "lldb"
     }
   ]
 }
