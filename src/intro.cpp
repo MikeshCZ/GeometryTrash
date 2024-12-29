@@ -1,6 +1,6 @@
 #include "intro.hpp"
 
-Intro::Intro ()
+Intro::Intro (string header) : header (header)
 {
   finishScreen = false;
   framesCounter = 0;
@@ -144,9 +144,9 @@ Intro::DrawLogoScreen ()
         DrawText ("powered by", logoPositionX, logoPositionY - 27, 20,
                   Fade (DARKGRAY, alphaPowered));
       if (framesCounter > 50)
-        DrawText ("Mikesh's Geometry Trash",
+        DrawText (header.c_str(),
                   GetScreenWidth () / 2
-                      - MeasureText ("Mikesh's Geometry Trash", 60) / 2,
+                      - MeasureText (header.c_str(), 60) / 2,
                   logoPositionY + 300, 60, Fade (BLACK, alphaTitle));
     }
 }
