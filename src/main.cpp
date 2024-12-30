@@ -19,7 +19,7 @@ main ()
   SetConfigFlags (FLAG_WINDOW_TRANSPARENT);
 
   // --- Constants & Variables ---
-  const bool DEBUG = true;     // DEBUG toggle
+  const bool DEBUG = false;    // DEBUG toggle
   bool playIntro = !DEBUG;     // Play raylib intro
   bool playMusic = !DEBUG;     // Play background music
   bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu
@@ -39,7 +39,7 @@ main ()
   const string GAME_NAME = "Mikesh's Geometry Trash"; // Název hry
   const char *WINDOW_TITLE = GAME_NAME.c_str ();      // Nadpis okna
   const Color COL_BACK = { 245, 245, 245, 255 };      // barva pozadí
-  int fps = GetMonitorRefreshRate (CURRENT_MONITOR);  // Target FPS of the app
+  int fps = 144;                                      // Target FPS of the app
   int playerX = WINDOW_WIDTH / 2;  // horizontální pozice hráče
   int playerY = WINDOW_HEIGHT / 2; // vertikální pozice hráče
   float playerRadius = 40.0f;      // rádius míče
