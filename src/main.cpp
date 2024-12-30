@@ -32,6 +32,7 @@ main ()
   const int CURRENT_MONITOR = GetCurrentMonitor ();
   const int WINDOW_WIDTH = GetMonitorWidth (CURRENT_MONITOR) / windowRatio;
   const int WINDOW_HEIGHT = GetMonitorHeight (CURRENT_MONITOR) / windowRatio;
+  int fps = GetMonitorRefreshRate (CURRENT_MONITOR);  // Target FPS
   CloseWindow ();
 
   const float GROUND_LEVEL = WINDOW_HEIGHT;           // hladina země
@@ -39,7 +40,6 @@ main ()
   const string GAME_NAME = "Mikesh's Geometry Trash"; // Název hry
   const char *WINDOW_TITLE = GAME_NAME.c_str ();      // Nadpis okna
   const Color COL_BACK = { 245, 245, 245, 255 };      // barva pozadí
-  int fps = 144;                                      // Target FPS of the app
   int playerX = WINDOW_WIDTH / 2;  // horizontální pozice hráče
   int playerY = WINDOW_HEIGHT / 2; // vertikální pozice hráče
   float playerRadius = 40.0f;      // rádius míče
