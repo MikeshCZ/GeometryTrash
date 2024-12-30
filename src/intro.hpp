@@ -1,19 +1,16 @@
 #pragma once
 #include "raylib.h"
-#include <string>
-
-using namespace std;
 
 class Intro
 {
 public:
-  Intro (string header);
+  Intro (const char *title);
   void UpdateLogoScreen ();
   void DrawLogoScreen ();
   bool IsIntroFininsh ();
 
 private:
-  string header;
+  const char *title;
   int framesCounter{};
   bool finishScreen{};
   int logoPositionX{};

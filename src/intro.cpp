@@ -1,6 +1,6 @@
 #include "intro.hpp"
 
-Intro::Intro (string header) : header (header)
+Intro::Intro (const char *title) : title (title)
 {
   finishScreen = false;
   framesCounter = 0;
@@ -144,9 +144,9 @@ Intro::DrawLogoScreen ()
         DrawText ("powered by", logoPositionX, logoPositionY - 27, 20,
                   Fade (DARKGRAY, alphaPowered));
       if (framesCounter > 50)
-        DrawText (header.c_str(),
+        DrawText (title,
                   GetScreenWidth () / 2
-                      - MeasureText (header.c_str(), 60) / 2,
+                      - MeasureText (title, 60) / 2,
                   logoPositionY + 300, 60, Fade (BLACK, alphaTitle));
     }
 }
