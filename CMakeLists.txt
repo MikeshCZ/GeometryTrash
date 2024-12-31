@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(GeometryTrash)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Fetch libs
@@ -12,7 +12,7 @@ set(FETCHCONTENT_QUIET FALSE)
 # don't build the examples
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(RAYGUI_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) 
-set(BUILD_GAMES    OFF CACHE BOOL "" FORCE)
+set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 
 # Raylib
 FetchContent_Declare(
@@ -21,6 +21,11 @@ FetchContent_Declare(
     GIT_TAG "master"
     GIT_PROGRESS TRUE
 )
+
+# Enable Metal support on macOS
+if(APPLE)
+    set(USE_METAL ON CACHE BOOL "" FORCE)
+endif()
 
 FetchContent_MakeAvailable(raylib)
 

@@ -1,12 +1,34 @@
+#pragma once
 #include "raylib.h"
-#include <string>
-
-using namespace std;
 
 class Ball
 {
+public:
+  // konstruktor
+  Ball (bool debug, float x, float y, float radius, float gravity,
+        float jumpForce, float moveSpeed, float acceleration,
+        float deceleration, float bounceFactor, float squashFactor);
+
+  // destruktor
+  ~Ball ();
+
+  // aktualizace pozice hráče
+  void Update (float direction, float deltaTime, float groundLevel);
+
+  // vykreslení hráče
+  void Draw (float deltaTime) const;
+
+  // metoda pro skok
+  void Jump (float groundLevel);
+
+  // Výpočet aktuální rychlosti hráče
+  Vector2 GetCurrentSpeed (float deltaTime) const;
+
+  // Výpočet aktuální pozice
+  Vector2 GetCurrentPosition () const;
+
 private:
-  const bool DEBUG;
+  const bool DEBUG;         // DEBUG režim
   Vector2 position;         // pozice hráče
   Vector2 previousPosition; // Minulá pozice míče
   float radius;             // radius míče
@@ -21,21 +43,11 @@ private:
   float squashFactor;       // Faktor pro zploštění
   bool IsOnTheGround;       // Náraz do země
   bool IsHitSoundPlayed;    // Přehrál se zvuk bouchnutí
-  Sound bounceSound = LoadSound ("audio/basketball.ogg"); // Načtení zvuku
-  void MoveX (float direction, float deltaTime); // Metoda pro horiz. pohyb
-  void DecelX (float deltaTime);                 // Decelerace
-  void AccelX (float direction, float deltaTime, float maxSpeed); // Accelerace
+  Sound bounceSound;        // Načtení zvuku
 
-public:
-  // inicializace hráče jako míče
-  Ball (bool debug, float x, float y, float radius, float gravity,
-        float jumpForce, float moveSpeed, float acceleration,
-        float deceleration, float bounceFactor, float squashFactor);
-  void Update (float direction, float deltaTime,
-               float groundLevel);                  // aktualizace pozice hráče
-  void Draw (float deltaTime) const;                // vykreslení hráče
-  void Jump (float groundLevel);                    // metoda pro skok
-  Vector2
-  GetCurrentSpeed (float deltaTime) const; // Výpočet aktuální rychlosti
-  Vector2 GetCurrentPosition () const;     // Výpočet aktuální pozice
+  // Výpočet decelerace
+  void DecelX (float deltaTime);
+
+  // Výpočet akcelerace
+  void AccelX (float direction, float deltaTime, float maxSpeed);
 };

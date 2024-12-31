@@ -1,8 +1,6 @@
 ﻿#include "ball.hpp"
 #include "intro.hpp"
 #include <algorithm>
-#include <fstream>
-#include <iostream>
 #include <raylib.h>
 #include <string>
 
@@ -11,55 +9,56 @@ using namespace std;
 int
 main ()
 {
-  // === INICIALIZATION ===
+  // === INICIALIZACE ===
+
+  // --- Raylib Flags ---
 
   SetConfigFlags (FLAG_VSYNC_HINT);
   SetConfigFlags (FLAG_MSAA_4X_HINT);
   SetConfigFlags (FLAG_WINDOW_HIGHDPI);
-  SetConfigFlags (FLAG_WINDOW_TRANSPARENT);
 
-  // --- Constants & Variables ---
-  const bool DEBUG = false;    // DEBUG toggle
-  bool playIntro = !DEBUG;     // Play raylib intro
-  bool playMusic = !DEBUG;     // Play background music
+  // --- Konstanty & Proměnné ---
+
+  constexpr bool DEBUG = true; // DEBUG mód
+  bool playIntro = !DEBUG;     // Přehraj raylib intro
+  bool playMusic = !DEBUG;     // Hraj muzikuc na pozadí
   bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu
+  int windowRatio = 1;         // koeficient velikosti okna
+  if (DEBUG)
+    windowRatio = 2;             // V případě debugu poloviční okno
+  InitWindow (800, 600, "Init"); // otevřené okno pro získání info o rozlišení
+  const int CURRENT_MONITOR = GetCurrentMonitor (); // index aktuální obrazovky
+  const int SCREEN_WIDTH
+      = GetMonitorWidth (CURRENT_MONITOR) / windowRatio; // šířka obrazovky
+  const int SCREEN_HEIGHT
+      = GetMonitorHeight (CURRENT_MONITOR) / windowRatio; // výška obrazovky
+  int fps = GetMonitorRefreshRate (CURRENT_MONITOR);      // Refresh rate FPS
+  CloseWindow ();                                         // Zavření init okna
+  const float GROUND_LEVEL = SCREEN_HEIGHT;               // hladina země
+  constexpr float GRAVITY = 9.8f * 150;               // gravitační konstanta
+  const string GAME_NAME = "Mikesh's Geometry Trash"; // název hry
+  const char *WINDOW_TITLE = GAME_NAME.c_str ();      // nadpis okna
+  const Color COL_BACK = { 205, 245, 245, 255 };      // hlavní barva pozadí
+  int playerX = SCREEN_WIDTH / 2;            // horizontální pozice hráče
+  int playerY = SCREEN_HEIGHT / 2;           // vertikální pozice hráče
+  float playerRadius = 40.0f;                // rádius míče
+  float jumpVel = -800.0f;                   // síla skoku
+  float bounceFactor = 0.3f;                 // faktor odrazu míče
+  float squashFactor = 0.5f;                 // faktor sploštění míče
+  float moveSpeed = 800.0f;                  // rychlost pohybu
+  float acceleration = 1500.0f;              // faktor akcelerace pohybu x
+  float deceleration = 1500.0f;              // faktor decelerace pohybu x
+  int gamepad = 0;                           // index gamepad
+  float leftStickX = 0.0f;                   // síla pohybu levé páčky v X
+  float leftStickY = 0.0f;                   // síla pohybu levé páčky v Y
+  constexpr float leftStickDeadzoneX = 0.1f; // mrtvá zóna levé páčky v X
+  constexpr float leftStickDeadzoneY = 0.1f; // mrtvá zóna levé páčky v Y
+  float horizontalInput = 0.0f; // vstup pro horizontální pohyb hráče
 
-  // Musi byt inicializované okno pro zjištění rozlišení monitoru
-  int windowRatio = 1;
-  if (DEBUG) // V případě debugu poloviční okno
-    windowRatio = 2;
-  InitWindow (800, 600, "Init");
-  const int CURRENT_MONITOR = GetCurrentMonitor ();
-  const int WINDOW_WIDTH = GetMonitorWidth (CURRENT_MONITOR) / windowRatio;
-  const int WINDOW_HEIGHT = GetMonitorHeight (CURRENT_MONITOR) / windowRatio;
-  int fps = GetMonitorRefreshRate (CURRENT_MONITOR);  // Target FPS
-  CloseWindow ();
+  // --- Příprava před spuštěním ---
 
-  const float GROUND_LEVEL = WINDOW_HEIGHT;           // hladina země
-  const float GRAVITY = 9.8f * 150;                   // gravitační konstanta
-  const string GAME_NAME = "Mikesh's Geometry Trash"; // Název hry
-  const char *WINDOW_TITLE = GAME_NAME.c_str ();      // Nadpis okna
-  const Color COL_BACK = { 245, 245, 245, 255 };      // barva pozadí
-  int playerX = WINDOW_WIDTH / 2;  // horizontální pozice hráče
-  int playerY = WINDOW_HEIGHT / 2; // vertikální pozice hráče
-  float playerRadius = 40.0f;      // rádius míče
-  float jumpVel = -800.0f;         // síla skoku
-  float bounceFactor = 0.3f;       // faktor odrazu míče
-  float squashFactor = 0.5f;       // faktor sploštění míče
-  float moveSpeed = 800.0f;        // rychlost pohybu
-  float acceleration = 1500.0f;    // decelerace pohybu x
-  float deceleration = 1500.0f;    // decelerace pohybu x
-
-  // Gamepad
-  int gamepad = 0;
-  float leftStickX = 0.0f;
-  float leftStickY = 0.0f;
-  const float leftStickDeadzoneX = 0.1f;
-  const float leftStickDeadzoneY = 0.1f;
-
-  // --- Init Main window ---
-
-  InitWindow (WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
+  // Hlavní okno
+  InitWindow (SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
   if (!DEBUG)
     ToggleFullscreen ();
   SetTargetFPS (fps);
@@ -70,15 +69,28 @@ main ()
   InitAudioDevice ();
   Music music = LoadMusicStream ("audio/music.ogg");
   SetMusicVolume (music, 1.0f);
-  PlayMusicStream (music);
+  if (playMusic)
+    PlayMusicStream (music);
+
+  // Hlavní postava hráče
+  Ball player (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, playerRadius,
+               GRAVITY, jumpVel, moveSpeed, acceleration, deceleration,
+               bounceFactor, squashFactor);
+
+  // Kamera
+  Camera2D camera = { 0 };
+  camera.target = player.GetCurrentPosition ();
+  camera.offset = (Vector2){ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f };
+  camera.rotation = 0.0f;
+  camera.zoom = 1.0f;
 
   // === INTRO ===
 
-  Intro intro (WINDOW_TITLE); // Raylib Intro screen
+  Intro intro (WINDOW_TITLE); // Raylib Intro
 
   if (playIntro)
     {
-      SetTargetFPS (60); // Set FPS to 60 to have same lenght of the video
+      SetTargetFPS (60); // Nastavení FPS na 60, aby byla synchronizovaná hudba
 
       while (WindowShouldClose () == false && playIntro)
         {
@@ -95,38 +107,34 @@ main ()
               intro.DrawLogoScreen ();
               EndDrawing ();
             }
-          else // Intro is finish
+          else // Konec intra
             {
-              SetTargetFPS (fps); // set back the FPS to config value
+              SetTargetFPS (fps); // nastavení FPS zpět
               break;
             }
         }
     }
 
-  // === MAIN LOOP ===
-
-  // Hlavní postava hráče
-  Ball player (DEBUG, WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f, playerRadius,
-               GRAVITY, jumpVel, moveSpeed, acceleration, deceleration,
-               bounceFactor, squashFactor);
+  // === HLAVNÍ SMYČKA ===
 
   while (WindowShouldClose () == false)
     {
-      // --- Music ---
+      // --- Hudba ---
 
       if (playMusic)
         {
           UpdateMusicStream (music);
         }
 
-      // --- 1. Event handling ---
-      if (IsGamepadAvailable (gamepad))
+      // --- 1. Zpracování událostí ---
+
+      if (IsGamepadAvailable (gamepad)) // načtení hodnot z gamepadu
         {
-          // get axis movements
+          // získat pohyby levé páčky
           leftStickX = GetGamepadAxisMovement (gamepad, GAMEPAD_AXIS_LEFT_X);
           leftStickY = GetGamepadAxisMovement (gamepad, GAMEPAD_AXIS_LEFT_Y);
 
-          // calculate deadzone
+          // výpočet deadzone
           if (leftStickX > -leftStickDeadzoneX
               and leftStickX < leftStickDeadzoneX)
             leftStickX = 0.0f;
@@ -135,54 +143,73 @@ main ()
             leftStickY = 0.0f;
         }
 
-      float horizontalInput = 0.0f;
-
+      // Výskok
       if (IsKeyDown (KEY_SPACE)
           or IsGamepadButtonDown (gamepad, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
-        { // Výskok
+        {
           player.Jump (GROUND_LEVEL);
         }
 
-      if (leftStickX != 0)
-        { // pohyb gamepadem po ose X
+      // Pohyb hráče v X
+      horizontalInput = 0.0f; // vynulování vstupu pohybu hráče v X
+
+      if (leftStickX != 0) // pohyb gamepadem po ose X
+        {
           horizontalInput = leftStickX;
         }
 
-      if (IsKeyDown (KEY_A))
-        { // Pohyb doleva
+      if (IsKeyDown (KEY_A)) // Pohyb doleva
+        {
           horizontalInput = -1.0f;
         }
 
-      if (IsKeyDown (KEY_D))
-        { // Pohyb doprava
+      if (IsKeyDown (KEY_D)) // Pohyb doprava
+        {
           horizontalInput = 1.0f;
         }
 
-      if (IsKeyDown (KEY_LEFT_ALT) and IsKeyDown (KEY_ENTER))
-        { // Toggle Fullscreen
+      // Funkční klávesy
+      if (IsKeyDown (KEY_F5)) // Přepnout Fullscreen
+        {
           ToggleFullscreen ();
         }
 
-      if (IsKeyPressed (KEY_F8))
-        { // Zobrazit statistiky
+      if (IsKeyPressed (KEY_F8)) // Zobrazit statistiky
+        {
           IsStatsVisible = !IsStatsVisible;
         }
 
-      // --- 2. Updating state ---
+      if (IsKeyPressed (KEY_F7)) // Reset kamera zoom
+        {
+          camera.zoom = 1.0f;
+          camera.rotation = 0.0f;
+        }
+
+      // Camera zoom
+      camera.zoom = clamp (camera.zoom + (float)GetMouseWheelMove () * 0.05f,
+                           0.1f, 3.0f);
+
+      // --- 2. Aktualizace stavu ---
 
       float deltaTime = GetFrameTime ();
       player.Update (horizontalInput, deltaTime, GROUND_LEVEL);
 
-      // --- 3. Drawing ---
+      // Camera target follows player
+      camera.target = (Vector2){ player.GetCurrentPosition () };
 
-      BeginDrawing ();
-      ClearBackground (COL_BACK);     // Clear the background
-      DrawFPS (WINDOW_WIDTH - 90, 5); // Write FPS to right corner
-      player.Draw (deltaTime);        // Draw player
+      // --- 3. Vykreslení ---
+
+      BeginDrawing ();            // Start drawing
+      ClearBackground (COL_BACK); // Vykreslení pozadí
+      BeginMode2D (camera);       // Kamera
+      player.Draw (deltaTime);    // Vykreslí hráče
+      EndMode2D ();               // Konec kamery
+
       if (IsStatsVisible)
         {
-          // Zobrazení pozice
+          DrawFPS (SCREEN_WIDTH - 90, 5); // Vypíše aktuální FPS
 
+          // Vypsání statistik
           DrawText (TextFormat ("Target FPS: %i", fps), 10, 10, 10, GRAY);
           DrawText (TextFormat ("Position X: %.2f px",
                                 player.GetCurrentPosition ().x),
@@ -190,7 +217,6 @@ main ()
           DrawText (TextFormat ("Position Y: %.2f px",
                                 player.GetCurrentPosition ().y),
                     10, 30, 10, GRAY);
-          // Zobrazení rychlosti
           DrawText (TextFormat ("Speed X: %.2f px/s",
                                 player.GetCurrentSpeed (deltaTime).x),
                     10, 40, 10, GRAY);
@@ -203,10 +229,11 @@ main ()
               TextFormat ("Left Axis X: %f, Y: %f", leftStickX, leftStickY),
               10, 70, 10, GRAY);
         }
-      EndDrawing ();
+
+      EndDrawing (); // Konec drawing
     }
 
-  // === CLOSING ROUTINE ===
+  // === UKONČOVACÍ PROCEDŮRA ===
 
   UnloadMusicStream (music);
   CloseAudioDevice ();

@@ -9,6 +9,12 @@ Ball::Ball (bool debug, float x, float y, float radius, float gravity,
       deceleration (deceleration), bounceFactor (bounceFactor),
       squashFactor (squashFactor), IsOnTheGround (false)
 {
+  bounceSound = LoadSound ("audio/basketball.ogg"); // Načtení zvuku
+}
+
+Ball::~Ball ()
+{
+  UnloadSound (bounceSound); // Uvolnění zvuku
 }
 
 void
@@ -43,38 +49,7 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
   // --- Výpočet pohybu v ose X ---
 
   position.x += speedX * deltaTime; // Aktualizace horizontální pozice X
-  MoveX (direction, deltaTime);
-}
-
-void
-Ball::Draw (float deltaTime) const
-{
-  float currentSquash = 1.0f;
-
-  if (GetCurrentSpeed (deltaTime).y > 0 and IsOnTheGround)
-    {
-      currentSquash = squashFactor;
-    }
-
-  DrawEllipse (position.x, position.y, radius, radius * currentSquash, MAROON);
-
-  if (DEBUG)
-    printf ("PosX: %f, PosY %f, SpeedX %f, SpeedY %f,\n", position.x,
-            position.y, speedX, speedY);
-}
-
-void
-Ball::Jump (float groundLevel)
-{
-  if (IsOnTheGround)
-    {
-      speedY = jumpForce;
-    }
-}
-
-void
-Ball::MoveX (float direction, float deltaTime)
-{
+  
   if (direction == 0)
     {
       // Decelerace při absenci směru
@@ -92,6 +67,28 @@ Ball::MoveX (float direction, float deltaTime)
 
       // Akcelerace
       AccelX (direction, deltaTime, moveSpeed);
+    }
+}
+
+void
+Ball::Draw (float deltaTime) const
+{
+  float currentSquash = 1.0f;
+
+  if (GetCurrentSpeed (deltaTime).y > 0 and IsOnTheGround)
+    {
+      currentSquash = squashFactor;
+    }
+
+  DrawEllipse (position.x, position.y, radius, radius * currentSquash, MAROON);
+}
+
+void
+Ball::Jump (float groundLevel)
+{
+  if (IsOnTheGround)
+    {
+      speedY = jumpForce;
     }
 }
 
