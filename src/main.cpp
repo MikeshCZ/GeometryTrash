@@ -1,5 +1,6 @@
 ﻿#include "ball.hpp"
 #include "intro.hpp"
+#include "obstacle.hpp"
 #include <algorithm>
 #include <raylib.h>
 #include <string>
@@ -19,11 +20,11 @@ main ()
 
   // --- Konstanty & Proměnné ---
 
-  constexpr bool DEBUG = true; // DEBUG mód
-  bool playIntro = !DEBUG;     // Přehraj raylib intro
-  bool playMusic = !DEBUG;     // Hraj muzikuc na pozadí
-  bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu
-  int windowRatio = 1;         // koeficient velikosti okna
+  constexpr bool DEBUG = false; // DEBUG mód
+  bool playIntro = !DEBUG;      // Přehraj raylib intro
+  bool playMusic = !DEBUG;      // Hraj muzikuc na pozadí
+  bool IsStatsVisible = DEBUG;  // Zobrazit statistiky pohybu
+  int windowRatio = 1;          // koeficient velikosti okna
   if (DEBUG)
     windowRatio = 2;             // V případě debugu poloviční okno
   InitWindow (800, 600, "Init"); // otevřené okno pro získání info o rozlišení
@@ -41,8 +42,8 @@ main ()
   const Color COL_BACK = { 205, 245, 245, 255 };      // hlavní barva pozadí
   int playerX = SCREEN_WIDTH / 2;            // horizontální pozice hráče
   int playerY = SCREEN_HEIGHT / 2;           // vertikální pozice hráče
-  float playerRadius = 40.0f;                // rádius míče
-  float jumpVel = -800.0f;                   // síla skoku
+  float playerRadius = 30.0f;                // rádius míče
+  float jumpVel = -600.0f;                   // síla skoku
   float bounceFactor = 0.3f;                 // faktor odrazu míče
   float squashFactor = 0.5f;                 // faktor sploštění míče
   float moveSpeed = 800.0f;                  // rychlost pohybu
@@ -54,6 +55,9 @@ main ()
   constexpr float leftStickDeadzoneX = 0.1f; // mrtvá zóna levé páčky v X
   constexpr float leftStickDeadzoneY = 0.1f; // mrtvá zóna levé páčky v Y
   float horizontalInput = 0.0f; // vstup pro horizontální pohyb hráče
+  bool isCollision = false;     // je kolize hráče s překážkou
+  int lifes = 5;                // počet životů
+  bool inTheHitBox = false;     // je v hitboxu
 
   // --- Příprava před spuštěním ---
 
@@ -77,10 +81,19 @@ main ()
                GRAVITY, jumpVel, moveSpeed, acceleration, deceleration,
                bounceFactor, squashFactor);
 
+  // Překážka
+  Obstacle prekazka (
+      DEBUG,
+      (Vector2){ (float)SCREEN_WIDTH / 2.0f - 15.0f, (float)SCREEN_HEIGHT },
+      (Vector2){ (float)SCREEN_WIDTH / 2.0f + 15.0f, (float)SCREEN_HEIGHT },
+      (Vector2){ (float)(SCREEN_WIDTH / 2.0f), (float)SCREEN_HEIGHT - 60.0f },
+      DARKGRAY);
+
   // Kamera
   Camera2D camera = { 0 };
   camera.target = player.GetCurrentPosition ();
-  camera.offset = (Vector2){ SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f };
+  camera.offset
+      = (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT / 2.0f };
   camera.rotation = 0.0f;
   camera.zoom = 1.0f;
 
@@ -169,7 +182,7 @@ main ()
         }
 
       // Funkční klávesy
-      if (IsKeyDown (KEY_F5)) // Přepnout Fullscreen
+      if (IsKeyPressed (KEY_F5)) // Přepnout Fullscreen
         {
           ToggleFullscreen ();
         }
@@ -194,6 +207,18 @@ main ()
       float deltaTime = GetFrameTime ();
       player.Update (horizontalInput, deltaTime, GROUND_LEVEL);
 
+      // kontrola kolize
+      isCollision = CheckCollisionCircleRec (
+          player.GetCurrentPosition (), playerRadius, prekazka.GetHitbox ());
+      if (isCollision and !inTheHitBox)
+        {
+          lifes -= 1;
+          inTheHitBox = true;
+        }
+      else if (!isCollision)
+        {
+          inTheHitBox = false;
+        }
       // Camera target follows player
       camera.target = (Vector2){ player.GetCurrentPosition () };
 
@@ -202,8 +227,10 @@ main ()
       BeginDrawing ();            // Start drawing
       ClearBackground (COL_BACK); // Vykreslení pozadí
       BeginMode2D (camera);       // Kamera
+      prekazka.Draw ();           // Vykreslí překážku
       player.Draw (deltaTime);    // Vykreslí hráče
-      EndMode2D ();               // Konec kamery
+
+      EndMode2D (); // Konec kamery
 
       if (IsStatsVisible)
         {
@@ -228,6 +255,7 @@ main ()
           DrawText (
               TextFormat ("Left Axis X: %f, Y: %f", leftStickX, leftStickY),
               10, 70, 10, GRAY);
+          DrawText (TextFormat ("Lifes: %i", lifes), 10, 80, 10, GRAY);
         }
 
       EndDrawing (); // Konec drawing
