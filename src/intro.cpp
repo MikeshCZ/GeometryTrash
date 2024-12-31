@@ -144,9 +144,7 @@ Intro::DrawLogoScreen ()
         DrawText ("powered by", logoPositionX, logoPositionY - 27, 20,
                   Fade (DARKGRAY, alphaPowered));
       if (framesCounter > 50)
-        DrawText (title,
-                  GetScreenWidth () / 2
-                      - MeasureText (title, 60) / 2,
+        DrawText (title, GetScreenWidth () / 2 - MeasureText (title, 60) / 2,
                   logoPositionY + 300, 60, Fade (BLACK, alphaTitle));
     }
 }

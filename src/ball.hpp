@@ -1,13 +1,13 @@
 #pragma once
 #include "raylib.h"
+#include "trailPoint.hpp"
+#include <deque>
 
 class Ball
 {
 public:
   // konstruktor
-  Ball (bool debug, float x, float y, float radius, float gravity,
-        float jumpForce, float moveSpeed, float acceleration,
-        float deceleration, float bounceFactor, float squashFactor);
+  Ball (bool debug, float x, float y, float gravity);
 
   // destruktor
   ~Ball ();
@@ -27,23 +27,32 @@ public:
   // Výpočet aktuální pozice
   Vector2 GetCurrentPosition () const;
 
+  // vrátí hodnotu rádiusu míče
+  float GetPlayerRadius () const;
+
+  // vykreslení trailu
+  void DrawTrail ();
+
 private:
-  const bool DEBUG;         // DEBUG režim
-  Vector2 position;         // pozice hráče
-  Vector2 previousPosition; // Minulá pozice míče
-  float radius;             // radius míče
-  float speedY;             // vertikální rychlost
-  float speedX;             // horizontální rychlost
-  float gravity;            // síla gravitace
-  float jumpForce;          // síla výskoku
-  float moveSpeed;          // rychlost pohybu
-  float acceleration;       // decelerace v pohybu x
-  float deceleration;       // decelerace v pohybu x
-  float bounceFactor;       // faktor odražení
-  float squashFactor;       // Faktor pro zploštění
-  bool IsOnTheGround;       // Náraz do země
-  bool IsHitSoundPlayed;    // Přehrál se zvuk bouchnutí
-  Sound bounceSound;        // Načtení zvuku
+  const bool DEBUG;             // DEBUG režim
+  const float playerRadius;     // rádius míče
+  const float jumpVel;          // síla skoku
+  const float bounceFactor;     // faktor odrazu míče
+  const float squashFactor;     // faktor sploštění míče
+  const float maxSpeed;         // rychlost pohybu
+  const float acceleration;     // faktor akcelerace pohybu x
+  const float deceleration;     // faktor decelerace pohybu x
+  Vector2 position;             // pozice hráče
+  Vector2 previousPosition;     // Minulá pozice míče
+  float speedY;                 // vertikální rychlost
+  float speedX;                 // horizontální rychlost
+  float gravity;                // síla gravitace
+  bool IsOnTheGround;           // náraz do země
+  bool IsHitSoundPlayed;        // přehrál se zvuk bouchnutí
+  Sound bounceSound;            // načtení zvuku
+  std::deque<TrailPoint> trail; // trail za míčem
+  float trailDuration;          // čas jak dlouho se zobrazuje trail
+  float currentTime;            // aktuální čas
 
   // Výpočet decelerace
   void DecelX (float deltaTime);

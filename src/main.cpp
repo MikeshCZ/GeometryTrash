@@ -42,13 +42,6 @@ main ()
   const Color COL_BACK = { 205, 245, 245, 255 };      // hlavní barva pozadí
   int playerX = SCREEN_WIDTH / 2;            // horizontální pozice hráče
   int playerY = SCREEN_HEIGHT / 2;           // vertikální pozice hráče
-  float playerRadius = 30.0f;                // rádius míče
-  float jumpVel = -600.0f;                   // síla skoku
-  float bounceFactor = 0.3f;                 // faktor odrazu míče
-  float squashFactor = 0.5f;                 // faktor sploštění míče
-  float moveSpeed = 800.0f;                  // rychlost pohybu
-  float acceleration = 1500.0f;              // faktor akcelerace pohybu x
-  float deceleration = 1500.0f;              // faktor decelerace pohybu x
   int gamepad = 0;                           // index gamepad
   float leftStickX = 0.0f;                   // síla pohybu levé páčky v X
   float leftStickY = 0.0f;                   // síla pohybu levé páčky v Y
@@ -77,16 +70,11 @@ main ()
     PlayMusicStream (music);
 
   // Hlavní postava hráče
-  Ball player (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, playerRadius,
-               GRAVITY, jumpVel, moveSpeed, acceleration, deceleration,
-               bounceFactor, squashFactor);
+  Ball player (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
 
   // Překážka
   Obstacle prekazka (
-      DEBUG,
-      (Vector2){ (float)SCREEN_WIDTH / 2.0f - 15.0f, (float)SCREEN_HEIGHT },
-      (Vector2){ (float)SCREEN_WIDTH / 2.0f + 15.0f, (float)SCREEN_HEIGHT },
-      (Vector2){ (float)(SCREEN_WIDTH / 2.0f), (float)SCREEN_HEIGHT - 60.0f },
+      DEBUG, (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT },
       DARKGRAY);
 
   // Kamera
@@ -208,8 +196,9 @@ main ()
       player.Update (horizontalInput, deltaTime, GROUND_LEVEL);
 
       // kontrola kolize
-      isCollision = CheckCollisionCircleRec (
-          player.GetCurrentPosition (), playerRadius, prekazka.GetHitbox ());
+      isCollision = CheckCollisionCircleRec (player.GetCurrentPosition (),
+                                             player.GetPlayerRadius (),
+                                             prekazka.GetHitbox ());
       if (isCollision and !inTheHitBox)
         {
           lifes -= 1;
@@ -224,13 +213,13 @@ main ()
 
       // --- 3. Vykreslení ---
 
-      BeginDrawing ();            // Start drawing
-      ClearBackground (COL_BACK); // Vykreslení pozadí
-      BeginMode2D (camera);       // Kamera
-      prekazka.Draw ();           // Vykreslí překážku
-      player.Draw (deltaTime);    // Vykreslí hráče
-
-      EndMode2D (); // Konec kamery
+      BeginDrawing ();            // start drawing
+      ClearBackground (COL_BACK); // vykreslení pozadí
+      BeginMode2D (camera);       // kamera
+      prekazka.Draw ();           // vykreslí překážku
+      player.DrawTrail ();        // vykreslí trail
+      player.Draw (deltaTime);    // vykreslí hráče
+      EndMode2D ();               // Konec kamery
 
       if (IsStatsVisible)
         {

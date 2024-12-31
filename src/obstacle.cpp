@@ -1,11 +1,10 @@
 #include "obstacle.hpp"
 
-Obstacle::Obstacle (bool debug, Vector2 v1, Vector2 v2, Vector2 v3,
-                    Color color)
-    : DEBUG (debug), v1 (v1), v2 (v2), v3 (v3), color (color)
+Obstacle::Obstacle (bool debug, Vector2 position, Color color)
+    : DEBUG (debug), position (position), color (color)
 {
-  hitbox = Rectangle{ v3.x - 4, v3.y + 16, 8, v1.y - v3.y - 16 };
-  
+  hitbox = Rectangle{ position.x + 8, position.y - 35, 4, 35 };
+
   if (DEBUG)
     {
       hitboxColor = { 255, 0, 0, 255 };
@@ -26,8 +25,10 @@ Obstacle::Update ()
 void
 Obstacle::Draw ()
 {
-  DrawTriangle (v1, v2, v3, color);
-  DrawRectangleLinesEx (hitbox, 3, hitboxColor);
+  DrawTriangle ({ position.x + 0, position.y + 0 },
+                { position.x + 20, position.y + 0 },
+                { position.x + 10, position.y - 40 }, color);
+  DrawRectangleLinesEx (hitbox, 1, hitboxColor);
 }
 
 Rectangle

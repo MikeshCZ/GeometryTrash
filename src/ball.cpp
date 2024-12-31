@@ -1,13 +1,10 @@
 #include "ball.hpp"
 
-Ball::Ball (bool debug, float x, float y, float radius, float gravity,
-            float jumpForce, float moveSpeed, float acceleration,
-            float deceleration, float bounceFactor, float squashFactor)
-    : DEBUG (debug), position ({ x, y }), radius (radius), speedY (0),
-      speedX (0), gravity (gravity), jumpForce (jumpForce),
-      moveSpeed (moveSpeed), acceleration (acceleration),
-      deceleration (deceleration), bounceFactor (bounceFactor),
-      squashFactor (squashFactor), IsOnTheGround (false)
+Ball::Ball (bool debug, float x, float y, float gravity)
+    : DEBUG (debug), position ({ x, y }), gravity (gravity),
+      playerRadius (20.0f), jumpVel (-400.0f), bounceFactor (0.3f),
+      squashFactor (0.5f), maxSpeed (800.0f), acceleration (1500.0f),
+      deceleration (1500.0f), IsOnTheGround (false), trailDuration (1.5f)
 {
   bounceSound = LoadSound ("audio/basketball.ogg"); // Načtení zvuku
 }
@@ -21,6 +18,7 @@ void
 Ball::Update (float direction, float deltaTime, float groundLevel)
 {
   previousPosition = position; // Uložení předchozí pozice
+  currentTime = GetTime ();
 
   // --- Výpočet pohybu v ose Y ---
 
@@ -28,10 +26,10 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
   position.y += speedY * deltaTime; // Aktualizace vertikální pozice Y
 
   // Kolize se zemí
-  if (position.y + radius >= groundLevel)
+  if (position.y + playerRadius >= groundLevel)
     {
       // Odraz
-      position.y = groundLevel - radius;
+      position.y = groundLevel - playerRadius;
       speedY = -speedY * bounceFactor;
       IsOnTheGround = true;
       if (!IsHitSoundPlayed)
@@ -49,7 +47,7 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
   // --- Výpočet pohybu v ose X ---
 
   position.x += speedX * deltaTime; // Aktualizace horizontální pozice X
-  
+
   if (direction == 0)
     {
       // Decelerace při absenci směru
@@ -66,7 +64,19 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
         }
 
       // Akcelerace
-      AccelX (direction, deltaTime, moveSpeed);
+      AccelX (direction, deltaTime, maxSpeed);
+    }
+
+  // --- Zpracování trailů ---
+
+  trail.push_back (
+      { position, currentTime }); // přidání aktuální pozice do trailu
+
+  // Odstranění starých bodů z trailu
+  while (!trail.empty ()
+         && currentTime - trail.front ().timestamp > trailDuration)
+    {
+      trail.pop_front ();
     }
 }
 
@@ -80,7 +90,8 @@ Ball::Draw (float deltaTime) const
       currentSquash = squashFactor;
     }
 
-  DrawEllipse (position.x, position.y, radius, radius * currentSquash, MAROON);
+  DrawEllipse (position.x, position.y, playerRadius,
+               playerRadius * currentSquash, MAROON);
 }
 
 void
@@ -88,7 +99,7 @@ Ball::Jump (float groundLevel)
 {
   if (IsOnTheGround)
     {
-      speedY = jumpForce;
+      speedY = jumpVel;
     }
 }
 
@@ -108,6 +119,25 @@ Ball::GetCurrentPosition () const
   float y = position.y;
 
   return { x, y };
+}
+
+float
+Ball::GetPlayerRadius () const
+{
+  return playerRadius;
+}
+
+void
+Ball::DrawTrail ()
+{
+  for (size_t i = 1; i < trail.size (); i++)
+    {
+      float age = currentTime - trail[i - 1].timestamp;
+      float alpha = 1.0f - (age / trailDuration);
+      Color trailColor = Fade (BLUE, alpha);
+      DrawLineBezier (trail[i - 1].position, trail[i].position, alpha * 10,
+                      trailColor);
+    }
 }
 
 void

@@ -4,7 +4,7 @@
 class Obstacle
 {
 public:
-  Obstacle (bool DEBUG, Vector2 v1, Vector2 v2, Vector2 v3, Color color);
+  Obstacle (bool DEBUG, Vector2 position, Color color);
   ~Obstacle ();
   void Update ();
   void Draw ();
@@ -12,9 +12,7 @@ public:
 
 private:
   bool DEBUG;
-  Vector2 v1;
-  Vector2 v2;
-  Vector2 v3;
+  Vector2 position;
   Color color;
   Color hitboxColor;
   Rectangle hitbox;
