@@ -2,6 +2,8 @@
 #include "fragment.hpp"
 #include "raylib.h"
 #include "trailPoint.hpp"
+#include <algorithm>
+#include <math.h>
 #include <deque>
 #include <vector>
 
