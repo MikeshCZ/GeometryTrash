@@ -1,7 +1,9 @@
 #pragma once
+#include "fragment.hpp"
 #include "raylib.h"
 #include "trailPoint.hpp"
 #include <deque>
+#include <vector>
 
 class Ball
 {
@@ -16,7 +18,7 @@ public:
   void Update (float direction, float deltaTime, float groundLevel);
 
   // vykreslení hráče
-  void Draw (float deltaTime) const;
+  void Draw (float deltaTime);
 
   // metoda pro skok
   void Jump (float groundLevel);
@@ -30,33 +32,50 @@ public:
   // vrátí hodnotu rádiusu míče
   float GetPlayerRadius () const;
 
-  // vykreslení trailu
-  void DrawTrail ();
+  // kontrola kolize, vrátí true, pokud je v kolizi
+  bool CheckCollision (const Rectangle &obstacle);
+
+  // vrátí počet životů
+  int GetLives ();
+
+  // Restartuj třídu Ball
+  bool GetDoRestart ();
 
 private:
-  const bool DEBUG;             // DEBUG režim
-  const float playerRadius;     // rádius míče
-  const float jumpVel;          // síla skoku
-  const float bounceFactor;     // faktor odrazu míče
-  const float squashFactor;     // faktor sploštění míče
-  const float maxSpeed;         // rychlost pohybu
-  const float acceleration;     // faktor akcelerace pohybu x
-  const float deceleration;     // faktor decelerace pohybu x
-  Vector2 position;             // pozice hráče
-  Vector2 previousPosition;     // Minulá pozice míče
-  float speedY;                 // vertikální rychlost
-  float speedX;                 // horizontální rychlost
-  float gravity;                // síla gravitace
-  bool IsOnTheGround;           // náraz do země
-  bool IsHitSoundPlayed;        // přehrál se zvuk bouchnutí
-  Sound bounceSound;            // načtení zvuku
-  std::deque<TrailPoint> trail; // trail za míčem
-  float trailDuration;          // čas jak dlouho se zobrazuje trail
-  float currentTime;            // aktuální čas
+  const bool DEBUG;                // DEBUG režim
+  const float playerRadius;        // rádius míče
+  const float jumpVel;             // síla skoku
+  const float bounceFactor;        // faktor odrazu míče
+  const float squashFactor;        // faktor sploštění míče
+  const float maxSpeed;            // rychlost pohybu
+  const float acceleration;        // faktor akcelerace pohybu x
+  const float deceleration;        // faktor decelerace pohybu x
+  Vector2 position;                // pozice hráče
+  Vector2 previousPosition;        // Minulá pozice míče
+  float speedY;                    // vertikální rychlost
+  float speedX;                    // horizontální rychlost
+  float gravity;                   // síla gravitace
+  bool IsOnTheGround;              // náraz do země
+  bool IsHitSoundPlayed;           // přehrál se zvuk bouchnutí
+  Sound bounceSound;               // načtení zvuku
+  std::deque<TrailPoint> trail;    // trail za míčem
+  float trailDuration;             // čas jak dlouho se zobrazuje trail
+  float currentTime;               // aktuální čas
+  int lives;                       // životy
+  bool isInHitbox;                 // je v hitboxu
+  std::vector<Fragment> fragments; // fragmenty při smrti hráče
+  bool isAlive;                    // hráč je naživu
+  bool doRestart;                  // restartuj třídu Ball
 
   // Výpočet decelerace
   void DecelX (float deltaTime);
 
   // Výpočet akcelerace
   void AccelX (float direction, float deltaTime, float maxSpeed);
+
+  // vykreslení trailu
+  void DrawTrail ();
+
+  // vykreslení fragmentů při smrti hráče
+  void DrawFragments () const;
 };

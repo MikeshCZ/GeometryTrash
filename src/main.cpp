@@ -20,11 +20,11 @@ main ()
 
   // --- Konstanty & Proměnné ---
 
-  constexpr bool DEBUG = false; // DEBUG mód
-  bool playIntro = !DEBUG;      // Přehraj raylib intro
-  bool playMusic = !DEBUG;      // Hraj muzikuc na pozadí
-  bool IsStatsVisible = DEBUG;  // Zobrazit statistiky pohybu
-  int windowRatio = 1;          // koeficient velikosti okna
+  constexpr bool DEBUG = true; // DEBUG mód
+  bool playIntro = !DEBUG;     // Přehraj raylib intro
+  bool playMusic = !DEBUG;     // Hraj muzikuc na pozadí
+  bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu
+  int windowRatio = 1;         // koeficient velikosti okna
   if (DEBUG)
     windowRatio = 2;             // V případě debugu poloviční okno
   InitWindow (800, 600, "Init"); // otevřené okno pro získání info o rozlišení
@@ -39,7 +39,7 @@ main ()
   constexpr float GRAVITY = 9.8f * 150;               // gravitační konstanta
   const string GAME_NAME = "Mikesh's Geometry Trash"; // název hry
   const char *WINDOW_TITLE = GAME_NAME.c_str ();      // nadpis okna
-  const Color COL_BACK = { 205, 245, 245, 255 };      // hlavní barva pozadí
+  const Color COL_BACK = SKYBLUE;                     // hlavní barva pozadí
   int playerX = SCREEN_WIDTH / 2;            // horizontální pozice hráče
   int playerY = SCREEN_HEIGHT / 2;           // vertikální pozice hráče
   int gamepad = 0;                           // index gamepad
@@ -48,9 +48,6 @@ main ()
   constexpr float leftStickDeadzoneX = 0.1f; // mrtvá zóna levé páčky v X
   constexpr float leftStickDeadzoneY = 0.1f; // mrtvá zóna levé páčky v Y
   float horizontalInput = 0.0f; // vstup pro horizontální pohyb hráče
-  bool isCollision = false;     // je kolize hráče s překážkou
-  int lifes = 5;                // počet životů
-  bool inTheHitBox = false;     // je v hitboxu
 
   // --- Příprava před spuštěním ---
 
@@ -70,7 +67,8 @@ main ()
     PlayMusicStream (music);
 
   // Hlavní postava hráče
-  Ball player (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
+  Ball *player
+      = new Ball (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
 
   // Překážka
   Obstacle prekazka (
@@ -79,7 +77,7 @@ main ()
 
   // Kamera
   Camera2D camera = { 0 };
-  camera.target = player.GetCurrentPosition ();
+  camera.target = player->GetCurrentPosition ();
   camera.offset
       = (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT / 2.0f };
   camera.rotation = 0.0f;
@@ -148,7 +146,7 @@ main ()
       if (IsKeyDown (KEY_SPACE)
           or IsGamepadButtonDown (gamepad, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
         {
-          player.Jump (GROUND_LEVEL);
+          player->Jump (GROUND_LEVEL);
         }
 
       // Pohyb hráče v X
@@ -193,23 +191,13 @@ main ()
       // --- 2. Aktualizace stavu ---
 
       float deltaTime = GetFrameTime ();
-      player.Update (horizontalInput, deltaTime, GROUND_LEVEL);
+      player->Update (horizontalInput, deltaTime, GROUND_LEVEL);
 
       // kontrola kolize
-      isCollision = CheckCollisionCircleRec (player.GetCurrentPosition (),
-                                             player.GetPlayerRadius (),
-                                             prekazka.GetHitbox ());
-      if (isCollision and !inTheHitBox)
-        {
-          lifes -= 1;
-          inTheHitBox = true;
-        }
-      else if (!isCollision)
-        {
-          inTheHitBox = false;
-        }
+      player->CheckCollision (prekazka.GetHitbox ());
+
       // Camera target follows player
-      camera.target = (Vector2){ player.GetCurrentPosition () };
+      camera.target = (Vector2){ player->GetCurrentPosition () };
 
       // --- 3. Vykreslení ---
 
@@ -217,9 +205,14 @@ main ()
       ClearBackground (COL_BACK); // vykreslení pozadí
       BeginMode2D (camera);       // kamera
       prekazka.Draw ();           // vykreslí překážku
-      player.DrawTrail ();        // vykreslí trail
-      player.Draw (deltaTime);    // vykreslí hráče
+      player->Draw (deltaTime);   // vykreslí hráče
       EndMode2D ();               // Konec kamery
+      if (player->GetDoRestart ())
+        {
+          delete player;
+          player = new Ball (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f,
+                             GRAVITY);
+        }
 
       if (IsStatsVisible)
         {
@@ -228,23 +221,24 @@ main ()
           // Vypsání statistik
           DrawText (TextFormat ("Target FPS: %i", fps), 10, 10, 10, GRAY);
           DrawText (TextFormat ("Position X: %.2f px",
-                                player.GetCurrentPosition ().x),
+                                player->GetCurrentPosition ().x),
                     10, 20, 10, GRAY);
           DrawText (TextFormat ("Position Y: %.2f px",
-                                player.GetCurrentPosition ().y),
+                                player->GetCurrentPosition ().y),
                     10, 30, 10, GRAY);
           DrawText (TextFormat ("Speed X: %.2f px/s",
-                                player.GetCurrentSpeed (deltaTime).x),
+                                player->GetCurrentSpeed (deltaTime).x),
                     10, 40, 10, GRAY);
           DrawText (TextFormat ("Speed Y: %.2f px/s",
-                                player.GetCurrentSpeed (deltaTime).y),
+                                player->GetCurrentSpeed (deltaTime).y),
                     10, 50, 10, GRAY);
           DrawText (TextFormat ("GP%d: %s", gamepad, GetGamepadName (gamepad)),
                     10, 60, 10, GRAY);
           DrawText (
               TextFormat ("Left Axis X: %f, Y: %f", leftStickX, leftStickY),
               10, 70, 10, GRAY);
-          DrawText (TextFormat ("Lifes: %i", lifes), 10, 80, 10, GRAY);
+          DrawText (TextFormat ("Lifes: %i", player->GetLives ()), 10, 80, 10,
+                    GRAY);
         }
 
       EndDrawing (); // Konec drawing
@@ -256,4 +250,5 @@ main ()
   CloseAudioDevice ();
   ShowCursor ();
   CloseWindow ();
+  delete player;
 }
