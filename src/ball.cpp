@@ -5,15 +5,23 @@ Ball::Ball (bool debug, float x, float y, float gravity)
       playerRadius (20.0f), jumpVel (-400.0f), bounceFactor (0.3f),
       squashFactor (0.5f), maxSpeed (800.0f), acceleration (1500.0f),
       deceleration (1500.0f), IsOnTheGround (false), trailDuration (1.5f),
-      lives (5), isInHitbox (false), IsHitSoundPlayed (false), speedX (0),
+      lives (1), isInHitbox (false), IsHitSoundPlayed (false), speedX (0),
       speedY (0), trail (), isAlive (true), doRestart (false)
 {
-  bounceSound = LoadSound ("audio/basketball.ogg"); // Načtení zvuku
+  // Načtení zvuku
+  bounceSound = LoadSound ("audio/basketball.ogg");
+  startSound = LoadSound ("audio/start.ogg");
+  killSound = LoadSound ("audio/kill.ogg");
+
+  PlaySound (startSound);
 }
 
 Ball::~Ball ()
 {
-  UnloadSound (bounceSound); // Uvolnění zvuku
+  // Uvolnění zvuku
+  UnloadSound (bounceSound);
+  UnloadSound (startSound);
+  UnloadSound (killSound);
 }
 
 void
@@ -84,10 +92,15 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
       trail.pop_front ();
     }
 
-  // --- Kontrola životů ---
+  // --- Kontrola životů a výbuch ---
 
   if (lives <= 0)
     {
+      if (!IsKillSoundPlayed)
+        {
+          PlaySound (killSound);
+          IsKillSoundPlayed = true;
+        }
 
       // Generování fragmentů
       if (fragments.empty () and isAlive == true)
@@ -96,10 +109,11 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
           for (int i = 0; i < 500; ++i)
             {
               float angle = GetRandomValue (0, 360) * DEG2RAD;
-              float speed = GetRandomValue (100, 2000);
+              float speed = GetRandomValue (10, 1000);
               fragments.push_back (Fragment (
                   position, { cos (angle) * speed, sin (angle) * speed },
-                  static_cast<float> (GetRandomValue (3, 6)), 2.0f));
+                  static_cast<float> (GetRandomValue (100, 500) / 100.f),
+                  static_cast<float> (GetRandomValue (10, 200) / 100.0f)));
             }
         }
 
@@ -155,7 +169,7 @@ Ball::DrawFragments () const
     {
       float alpha = fragment.life / 2.0f; // Fragment postupně zmizí
       Color color = Fade (RED, alpha);
-      DrawCircleV (fragment.position, 3.0f, color);
+      DrawCircleV (fragment.position, fragment.radius, color);
     }
 }
 

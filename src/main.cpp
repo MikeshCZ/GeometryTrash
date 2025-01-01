@@ -20,7 +20,7 @@ main ()
 
   // --- Konstanty & Proměnné ---
 
-  constexpr bool DEBUG = true; // DEBUG mód
+  constexpr bool DEBUG = false; // DEBUG mód
   bool playIntro = !DEBUG;     // Přehraj raylib intro
   bool playMusic = !DEBUG;     // Hraj muzikuc na pozadí
   bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu

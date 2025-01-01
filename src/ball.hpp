@@ -57,7 +57,10 @@ private:
   float gravity;                   // síla gravitace
   bool IsOnTheGround;              // náraz do země
   bool IsHitSoundPlayed;           // přehrál se zvuk bouchnutí
+  bool IsKillSoundPlayed;           // přehrál se zvuk zabití
   Sound bounceSound;               // načtení zvuku
+  Sound startSound;                // zvuk nafouknutí míče
+  Sound killSound;                 // zvuk prasknutí míče
   std::deque<TrailPoint> trail;    // trail za míčem
   float trailDuration;             // čas jak dlouho se zobrazuje trail
   float currentTime;               // aktuální čas
