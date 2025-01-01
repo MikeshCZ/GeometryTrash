@@ -66,23 +66,6 @@ main ()
   if (playMusic)
     PlayMusicStream (music);
 
-  // Hlavní postava hráče
-  Ball *player
-      = new Ball (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
-
-  // Překážka
-  Obstacle prekazka (
-      DEBUG, (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT },
-      DARKGRAY);
-
-  // Kamera
-  Camera2D camera = { 0 };
-  camera.target = player->GetCurrentPosition ();
-  camera.offset
-      = (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT / 2.0f };
-  camera.rotation = 0.0f;
-  camera.zoom = 1.0f;
-
   // === INTRO ===
 
   Intro intro (WINDOW_TITLE); // Raylib Intro
@@ -115,6 +98,23 @@ main ()
     }
 
   // === HLAVNÍ SMYČKA ===
+
+  // Hlavní postava hráče
+  Ball *player
+      = new Ball (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
+
+  // Překážka
+  Obstacle prekazka (
+      DEBUG, (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT },
+      DARKGRAY);
+
+  // Kamera
+  Camera2D camera = { 0 };
+  camera.target = player->GetCurrentPosition ();
+  camera.offset
+      = (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT / 2.0f };
+  camera.rotation = 0.0f;
+  camera.zoom = 1.0f;
 
   while (WindowShouldClose () == false)
     {

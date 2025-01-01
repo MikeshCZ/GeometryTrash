@@ -2,7 +2,7 @@
 
 Ball::Ball (bool debug, float x, float y, float gravity)
     : DEBUG (debug), position ({ x, y }), gravity (gravity),
-      playerRadius (20.0f), jumpVel (-400.0f), bounceFactor (0.3f),
+      playerRadius (20.0f), jumpVel (-500.0f), bounceFactor (0.3f),
       squashFactor (0.5f), maxSpeed (800.0f), acceleration (1500.0f),
       deceleration (1500.0f), IsOnTheGround (false), trailDuration (1.5f),
       lives (1), isInHitbox (false), IsHitSoundPlayed (false), speedX (0),
@@ -76,7 +76,21 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
             }
 
           // Akcelerace
-          AccelX (direction, deltaTime, maxSpeed);
+          if (IsOnTheGround)
+            {
+              AccelX (direction, deltaTime, maxSpeed);
+            }
+          else
+            {
+              if ((speedX > maxSpeed / 4) or (speedX < -maxSpeed / 4))
+                {
+                  DecelX (deltaTime);
+                }
+              else
+                {
+                  AccelX (direction, deltaTime, maxSpeed / 4);
+                }
+            }
         }
     }
 
