@@ -24,7 +24,11 @@ main ()
 
   constexpr bool DEBUG = false; // DEBUG mód
   bool playIntro = !DEBUG;      // Přehraj raylib intro
+<<<<<<< HEAD
   bool playMusic = !DEBUG;      // Hraj muzikuc na pozadí
+=======
+  bool playMusic = !DEBUG;      // Hraj muziku na pozadí
+>>>>>>> 8fbd1be9a25ea9bd1f396d9c066c6f9fcd00788e
   bool IsStatsVisible = DEBUG;  // Zobrazit statistiky pohybu
   int windowRatio = 1;          // koeficient velikosti okna
   if (DEBUG)
@@ -41,7 +45,7 @@ main ()
   constexpr float GRAVITY = 9.8f * 150;               // gravitační konstanta
   const string GAME_NAME = "Mikesh's Geometry Trash"; // název hry
   const char *WINDOW_TITLE = GAME_NAME.c_str ();      // nadpis okna
-  const Color COL_BACK = SKYBLUE;                     // hlavní barva pozadí
+  const Color COL_BACK = { 205, 245, 245, 255 };      // hlavní barva pozadí
   int playerX = SCREEN_WIDTH / 2;            // horizontální pozice hráče
   int playerY = SCREEN_HEIGHT / 2;           // vertikální pozice hráče
   int gamepad = 0;                           // index gamepad
