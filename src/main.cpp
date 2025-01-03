@@ -24,15 +24,11 @@ main ()
 
   constexpr bool DEBUG = false; // DEBUG mód
   bool playIntro = !DEBUG;      // Přehraj raylib intro
-<<<<<<< HEAD
   bool playMusic = !DEBUG;      // Hraj muzikuc na pozadí
-=======
-  bool playMusic = !DEBUG;      // Hraj muziku na pozadí
->>>>>>> 8fbd1be9a25ea9bd1f396d9c066c6f9fcd00788e
   bool IsStatsVisible = DEBUG;  // Zobrazit statistiky pohybu
   int windowRatio = 1;          // koeficient velikosti okna
   if (DEBUG)
-    windowRatio = 2;             // V případě debugu poloviční okno
+    windowRatio = 2;              // V případě debugu poloviční okno
   InitWindow (1280, 720, "Init"); // otevřené okno pro získání info o rozlišení
   const int CURRENT_MONITOR = GetCurrentMonitor (); // index aktuální obrazovky
   const int SCREEN_WIDTH
@@ -59,7 +55,7 @@ main ()
 
   // Hlavní okno
   InitWindow (SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-  if (DEBUG or !IsWindowFullscreen)
+  if (DEBUG or !IsWindowFullscreen ())
     ToggleFullscreen ();
   SetTargetFPS (fps);
   HideCursor ();
