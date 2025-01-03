@@ -10,12 +10,11 @@
   //
   //   Set up Windows System Environment PATH: 
   //     C:\msys64\ucrt64\bin; c:\msys64\usr\bin
-  
   "version": "0.2.0",
   "configurations": [
     {
-      "preLaunchTask": "mac-build",
-      "name": "MAC Build and Launch",
+      "preLaunchTask": "build",
+      "name": "Build and Launch",
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/${workspaceFolderBasename}",
@@ -24,22 +23,13 @@
       "cwd": "${workspaceFolder}/build",
       "environment": [],
       "externalConsole": false,
-      "MIMode": "lldb"
+      "MIMode": "lldb",
+      "windows": {
+        "program": "${workspaceFolder}/build/${workspaceFolderBasename}.exe",
+        "MIMode": "gdb",
+        "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+        "miDebuggerArgs": ""
+      }
     },
-    {
-      "preLaunchTask": "win-build",
-      "name": "WIN Build and Launch",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "${workspaceFolder}/build/${workspaceFolderBasename}.exe",
-      "args": [],
-      "stopAtEntry": false,
-      "cwd": "${workspaceFolder}/build",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "gdb",
-      "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
-      "miDebuggerArgs": ""
-    }
   ]
 }

@@ -3,8 +3,7 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**",
-                "/opt/homebrew/Cellar/raylib/5.5/include/**"
+                "${workspaceFolder}/**"
             ],
             "defines": [],
             "macFrameworkPath": [
@@ -14,6 +13,19 @@
             "cppStandard": "c++23",
             "intelliSenseMode": "macos-gcc-x64",
             "compilerPath": "/usr/bin/g++"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "cStandard": "c23",
+            "cppStandard": "c++23",
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4

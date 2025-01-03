@@ -1,6 +1,6 @@
-#include "ball.hpp"
+#include "player.hpp"
 
-Ball::Ball (bool debug, float x, float y, float gravity)
+Player::Player (bool debug, float x, float y, float gravity)
     : DEBUG (debug), position ({ x, y }), gravity (gravity),
       playerRadius (20.0f), jumpVel (-500.0f), bounceFactor (0.3f),
       squashFactor (0.5f), maxSpeed (800.0f), acceleration (1500.0f),
@@ -9,14 +9,14 @@ Ball::Ball (bool debug, float x, float y, float gravity)
       speedY (0), trail (), isAlive (true), doRestart (false)
 {
   // Načtení zvuku
-  bounceSound = LoadSound ("audio/basketball.ogg");
-  startSound = LoadSound ("audio/start.ogg");
-  killSound = LoadSound ("audio/kill.ogg");
+  bounceSound = LoadSound ("assets/basketball.ogg");
+  startSound = LoadSound ("assets/start.ogg");
+  killSound = LoadSound ("assets/kill.ogg");
 
   PlaySound (startSound);
 }
 
-Ball::~Ball ()
+Player::~Player ()
 {
   // Uvolnění zvuku
   UnloadSound (bounceSound);
@@ -25,7 +25,7 @@ Ball::~Ball ()
 }
 
 void
-Ball::Update (float direction, float deltaTime, float groundLevel)
+Player::Update (float direction, float deltaTime, float groundLevel)
 {
   previousPosition = position; // Uložení předchozí pozice
   currentTime = GetTime ();
@@ -82,13 +82,13 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
             }
           else
             {
-              if ((speedX > maxSpeed / 4) or (speedX < -maxSpeed / 4))
+              if ((speedX > maxSpeed / 2) or (speedX < -maxSpeed / 2))
                 {
                   DecelX (deltaTime);
                 }
               else
                 {
-                  AccelX (direction, deltaTime, maxSpeed / 4);
+                  AccelX (direction, deltaTime, maxSpeed / 2);
                 }
             }
         }
@@ -156,7 +156,7 @@ Ball::Update (float direction, float deltaTime, float groundLevel)
 }
 
 void
-Ball::Draw (float deltaTime)
+Player::Draw (float deltaTime)
 {
   float currentSquash = 1.0f;
 
@@ -177,7 +177,7 @@ Ball::Draw (float deltaTime)
 }
 
 void
-Ball::DrawFragments () const
+Player::DrawFragments () const
 {
   for (const auto &fragment : fragments)
     {
@@ -188,7 +188,7 @@ Ball::DrawFragments () const
 }
 
 void
-Ball::Jump (float groundLevel)
+Player::Jump (float groundLevel)
 {
   if (IsOnTheGround)
     {
@@ -197,7 +197,7 @@ Ball::Jump (float groundLevel)
 }
 
 Vector2
-Ball::GetCurrentSpeed (float deltaTime) const
+Player::GetCurrentSpeed (float deltaTime) const
 {
   float x = (position.x - previousPosition.x) / deltaTime;
   float y = (position.y - previousPosition.y) / deltaTime;
@@ -206,7 +206,7 @@ Ball::GetCurrentSpeed (float deltaTime) const
 }
 
 Vector2
-Ball::GetCurrentPosition () const
+Player::GetCurrentPosition () const
 {
   float x = position.x;
   float y = position.y;
@@ -215,13 +215,13 @@ Ball::GetCurrentPosition () const
 }
 
 float
-Ball::GetPlayerRadius () const
+Player::GetPlayerRadius () const
 {
   return playerRadius;
 }
 
 void
-Ball::DrawTrail ()
+Player::DrawTrail ()
 {
   for (size_t i = 1; i < trail.size (); i++)
     {
@@ -234,7 +234,7 @@ Ball::DrawTrail ()
 }
 
 bool
-Ball::CheckCollision (const Rectangle &obstacle)
+Player::CheckCollision (const Rectangle &obstacle)
 {
   if (!isInHitbox
       and CheckCollisionCircleRec (position, playerRadius, obstacle))
@@ -256,19 +256,19 @@ Ball::CheckCollision (const Rectangle &obstacle)
 }
 
 int
-Ball::GetLives ()
+Player::GetLives ()
 {
   return lives;
 }
 
 bool
-Ball::GetDoRestart ()
+Player::GetDoRestart ()
 {
   return doRestart;
 }
 
 void
-Ball::DecelX (float deltaTime)
+Player::DecelX (float deltaTime)
 {
   if (speedX > 0)
     {
@@ -285,7 +285,7 @@ Ball::DecelX (float deltaTime)
 }
 
 void
-Ball::AccelX (float direction, float deltaTime, float maxSpeed)
+Player::AccelX (float direction, float deltaTime, float maxSpeed)
 {
   // Přidání akcelerace podle směru
   speedX += direction * acceleration * deltaTime;

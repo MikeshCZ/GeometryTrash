@@ -5,14 +5,14 @@
 #include <deque>
 #include <vector>
 
-class Ball
+class Player
 {
 public:
   // konstruktor
-  Ball (bool debug, float x, float y, float gravity);
+  Player (bool debug, float x, float y, float gravity);
 
   // destruktor
-  ~Ball ();
+  ~Player ();
 
   // aktualizace pozice hráče
   void Update (float direction, float deltaTime, float groundLevel);
@@ -38,7 +38,7 @@ public:
   // vrátí počet životů
   int GetLives ();
 
-  // Restartuj třídu Ball
+  // Restartuj třídu Player
   bool GetDoRestart ();
 
 private:
@@ -57,7 +57,7 @@ private:
   float gravity;                   // síla gravitace
   bool IsOnTheGround;              // náraz do země
   bool IsHitSoundPlayed;           // přehrál se zvuk bouchnutí
-  bool IsKillSoundPlayed;           // přehrál se zvuk zabití
+  bool IsKillSoundPlayed;          // přehrál se zvuk zabití
   Sound bounceSound;               // načtení zvuku
   Sound startSound;                // zvuk nafouknutí míče
   Sound killSound;                 // zvuk prasknutí míče
@@ -68,7 +68,7 @@ private:
   bool isInHitbox;                 // je v hitboxu
   std::vector<Fragment> fragments; // fragmenty při smrti hráče
   bool isAlive;                    // hráč je naživu
-  bool doRestart;                  // restartuj třídu Ball
+  bool doRestart;                  // restartuj třídu Player
 
   // Výpočet decelerace
   void DecelX (float deltaTime);

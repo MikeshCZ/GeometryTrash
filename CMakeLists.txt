@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(GeometryTrash)
+# name of the folder
+get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+
+project(${PROJECT_NAME})
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,10 +48,10 @@ file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/s
 set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/src/")
 
 # Přidání složky audio do výstupu
-add_custom_target(CopyAudio ALL
+add_custom_target(CopyAssets ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/audio
-    ${CMAKE_BINARY_DIR}/audio
+    ${CMAKE_SOURCE_DIR}/assets
+    ${CMAKE_BINARY_DIR}/assets
 )
 
 # Declaring our executable
@@ -56,4 +60,4 @@ target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 target_include_directories(${PROJECT_NAME} PRIVATE ${raygui_SOURCE_DIR})
-add_dependencies(${PROJECT_NAME} CopyAudio)
+add_dependencies(${PROJECT_NAME} CopyAssets)

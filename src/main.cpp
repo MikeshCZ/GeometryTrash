@@ -1,6 +1,7 @@
-﻿#include "ball.hpp"
+﻿#include "grid.hpp"
 #include "intro.hpp"
 #include "obstacle.hpp"
+#include "player.hpp"
 #include <algorithm>
 #include <raylib.h>
 #include <string>
@@ -17,17 +18,18 @@ main ()
   SetConfigFlags (FLAG_VSYNC_HINT);
   SetConfigFlags (FLAG_MSAA_4X_HINT);
   SetConfigFlags (FLAG_WINDOW_HIGHDPI);
+  SetConfigFlags (FLAG_FULLSCREEN_MODE);
 
   // --- Konstanty & Proměnné ---
 
   constexpr bool DEBUG = false; // DEBUG mód
-  bool playIntro = !DEBUG;     // Přehraj raylib intro
-  bool playMusic = !DEBUG;     // Hraj muzikuc na pozadí
-  bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu
-  int windowRatio = 1;         // koeficient velikosti okna
+  bool playIntro = !DEBUG;      // Přehraj raylib intro
+  bool playMusic = !DEBUG;      // Hraj muzikuc na pozadí
+  bool IsStatsVisible = DEBUG;  // Zobrazit statistiky pohybu
+  int windowRatio = 1;          // koeficient velikosti okna
   if (DEBUG)
     windowRatio = 2;             // V případě debugu poloviční okno
-  InitWindow (800, 600, "Init"); // otevřené okno pro získání info o rozlišení
+  InitWindow (1280, 720, "Init"); // otevřené okno pro získání info o rozlišení
   const int CURRENT_MONITOR = GetCurrentMonitor (); // index aktuální obrazovky
   const int SCREEN_WIDTH
       = GetMonitorWidth (CURRENT_MONITOR) / windowRatio; // šířka obrazovky
@@ -53,7 +55,7 @@ main ()
 
   // Hlavní okno
   InitWindow (SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-  if (!DEBUG)
+  if (DEBUG or !IsWindowFullscreen)
     ToggleFullscreen ();
   SetTargetFPS (fps);
   HideCursor ();
@@ -61,7 +63,7 @@ main ()
 
   // Inicializace hudby na pozadí
   InitAudioDevice ();
-  Music music = LoadMusicStream ("audio/music.ogg");
+  Music music = LoadMusicStream ("assets/music.ogg");
   SetMusicVolume (music, 1.0f);
   if (playMusic)
     PlayMusicStream (music);
@@ -100,13 +102,16 @@ main ()
   // === HLAVNÍ SMYČKA ===
 
   // Hlavní postava hráče
-  Ball *player
-      = new Ball (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
+  Player *player
+      = new Player (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
 
   // Překážka
   Obstacle prekazka (
       DEBUG, (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT },
       DARKGRAY);
+
+  // Grid
+  Grid grid (SCREEN_WIDTH, SCREEN_HEIGHT, 20, COL_BACK);
 
   // Kamera
   Camera2D camera = { 0 };
@@ -201,17 +206,18 @@ main ()
 
       // --- 3. Vykreslení ---
 
-      BeginDrawing ();            // start drawing
-      ClearBackground (COL_BACK); // vykreslení pozadí
-      BeginMode2D (camera);       // kamera
-      prekazka.Draw ();           // vykreslí překážku
-      player->Draw (deltaTime);   // vykreslí hráče
-      EndMode2D ();               // Konec kamery
+      BeginDrawing ();          // start drawing
+      ClearBackground (GRAY);   // vykreslení pozadí
+      BeginMode2D (camera);     // kamera
+      grid.Draw ();             // show Grid
+      prekazka.Draw ();         // vykreslí překážku
+      player->Draw (deltaTime); // vykreslí hráče
+      EndMode2D ();             // Konec kamery
       if (player->GetDoRestart ())
         {
           delete player;
-          player = new Ball (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f,
-                             GRAVITY);
+          player = new Player (DEBUG, SCREEN_WIDTH / 2.0f,
+                               SCREEN_HEIGHT / 2.0f, GRAVITY);
         }
 
       if (IsStatsVisible)
