@@ -6,6 +6,23 @@
 #include <raylib.h>
 #include <string>
 
+// Detekce OS
+#if defined(_WIN32) || defined(_WIN64)
+#define OS_NAME "Windows"
+#elif defined(__APPLE__) || defined(__MACH__)
+#define OS_NAME "MacOS"
+#elif defined(__linux__)
+#define OS_NAME "Linux"
+#elif defined(__unix__)
+#define OS_NAME "Unix"
+#elif defined(__ANDROID__)
+#define OS_NAME "Android"
+#elif defined(__FreeBSD__)
+#define OS_NAME "FreeBSD"
+#else
+#define OS_NAME "NA"
+#endif
+
 using namespace std;
 
 int
@@ -18,7 +35,8 @@ main ()
   SetConfigFlags (FLAG_VSYNC_HINT);
   SetConfigFlags (FLAG_MSAA_4X_HINT);
   SetConfigFlags (FLAG_WINDOW_HIGHDPI);
-  SetConfigFlags (FLAG_FULLSCREEN_MODE);
+  if (std::string (OS_NAME) == "MacOS")
+    SetConfigFlags (FLAG_FULLSCREEN_MODE);
 
   // --- Konstanty & Proměnné ---
 
