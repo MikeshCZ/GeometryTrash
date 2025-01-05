@@ -6,22 +6,8 @@
 #include <raylib.h>
 #include <string>
 
-// Detekce OS
-#if defined(_WIN32) || defined(_WIN64)
-#define OS_NAME "Windows"
-#elif defined(__APPLE__) || defined(__MACH__)
-#define OS_NAME "MacOS"
-#elif defined(__linux__)
-#define OS_NAME "Linux"
-#elif defined(__unix__)
-#define OS_NAME "Unix"
-#elif defined(__ANDROID__)
-#define OS_NAME "Android"
-#elif defined(__FreeBSD__)
-#define OS_NAME "FreeBSD"
-#else
-#define OS_NAME "NA"
-#endif
+#define RAYGUI_IMPLEMENTATION
+#include <raygui.h>
 
 using namespace std;
 
@@ -34,32 +20,22 @@ main ()
 
   SetConfigFlags (FLAG_VSYNC_HINT);
   SetConfigFlags (FLAG_MSAA_4X_HINT);
-  SetConfigFlags (FLAG_WINDOW_HIGHDPI);
-  if (std::string (OS_NAME) == "MacOS")
-    SetConfigFlags (FLAG_FULLSCREEN_MODE);
+  // SetConfigFlags (FLAG_WINDOW_HIGHDPI);
 
   // --- Konstanty & Proměnné ---
-
-  constexpr bool DEBUG = false; // DEBUG mód
-  bool playIntro = !DEBUG;      // Přehraj raylib intro
-  bool playMusic = !DEBUG;      // Hraj muzikuc na pozadí
-  bool IsStatsVisible = DEBUG;  // Zobrazit statistiky pohybu
-  int windowRatio = 1;          // koeficient velikosti okna
-  if (DEBUG)
-    windowRatio = 2;              // V případě debugu poloviční okno
-  InitWindow (1280, 720, "Init"); // otevřené okno pro získání info o rozlišení
-  const int CURRENT_MONITOR = GetCurrentMonitor (); // index aktuální obrazovky
-  const int SCREEN_WIDTH
-      = GetMonitorWidth (CURRENT_MONITOR) / windowRatio; // šířka obrazovky
-  const int SCREEN_HEIGHT
-      = GetMonitorHeight (CURRENT_MONITOR) / windowRatio; // výška obrazovky
-  int fps = GetMonitorRefreshRate (CURRENT_MONITOR);      // Refresh rate FPS
-  CloseWindow ();                                         // Zavření init okna
-  const float GROUND_LEVEL = SCREEN_HEIGHT;               // hladina země
-  constexpr float GRAVITY = 9.8f * 150;               // gravitační konstanta
   const string GAME_NAME = "Mikesh's Geometry Trash"; // název hry
-  const char *WINDOW_TITLE = GAME_NAME.c_str ();      // nadpis okna
-  const Color COL_BACK = { 205, 245, 245, 255 };      // hlavní barva pozadí
+  InitWindow (0, 0, GAME_NAME.c_str ());              // inicializace okna
+  constexpr bool DEBUG = true;                        // DEBUG mód
+  bool playIntro = !DEBUG;                            // Přehraj raylib intro
+  bool playMusic = !DEBUG;                            // Hraj muzikuc na pozadí
+  bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu
+  const int CURRENT_MONITOR = GetCurrentMonitor (); // index aktuální obrazovky
+  const int SCREEN_WIDTH = GetMonitorWidth (CURRENT_MONITOR);   // šířka obr.
+  const int SCREEN_HEIGHT = GetMonitorHeight (CURRENT_MONITOR); // výška obr.
+  int fps = GetMonitorRefreshRate (CURRENT_MONITOR); // Refresh rate FPS
+  const float GROUND_LEVEL = SCREEN_HEIGHT;          // hladina země
+  constexpr float GRAVITY = 9.8f * 150;              // gravitační konstanta
+  const Color COL_BACK = { 205, 245, 245, 255 };     // hlavní barva pozadí
   int playerX = SCREEN_WIDTH / 2;            // horizontální pozice hráče
   int playerY = SCREEN_HEIGHT / 2;           // vertikální pozice hráče
   int gamepad = 0;                           // index gamepad
@@ -72,8 +48,7 @@ main ()
   // --- Příprava před spuštěním ---
 
   // Hlavní okno
-  InitWindow (SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-  if (DEBUG or !IsWindowFullscreen ())
+  if (DEBUG xor !IsWindowFullscreen ())
     ToggleFullscreen ();
   SetTargetFPS (fps);
   HideCursor ();
@@ -88,7 +63,7 @@ main ()
 
   // === INTRO ===
 
-  Intro intro (WINDOW_TITLE); // Raylib Intro
+  Intro intro (GAME_NAME.c_str ()); // Raylib Intro
 
   if (playIntro)
     {
@@ -243,26 +218,25 @@ main ()
           DrawFPS (SCREEN_WIDTH - 90, 5); // Vypíše aktuální FPS
 
           // Vypsání statistik
-          DrawText (TextFormat ("Target FPS: %i", fps), 10, 10, 10, GRAY);
-          DrawText (TextFormat ("Position X: %.2f px",
-                                player->GetCurrentPosition ().x),
-                    10, 20, 10, GRAY);
-          DrawText (TextFormat ("Position Y: %.2f px",
+          int statsSize = 20;
+          int statsPosition = statsSize;
+          DrawText (TextFormat ("Lifes: %i", player->GetLives ()), statsSize,
+                    statsPosition = +statsSize, statsSize, GREEN);
+          DrawText (TextFormat ("Resolution: %i x %i, FPS: %i", SCREEN_WIDTH,
+                                SCREEN_HEIGHT, fps),
+                    statsSize, statsPosition += statsSize, statsSize, GREEN);
+          DrawText (TextFormat ("Position X: %.2f px, Y: %.2f px",
+                                player->GetCurrentPosition ().x,
                                 player->GetCurrentPosition ().y),
-                    10, 30, 10, GRAY);
-          DrawText (TextFormat ("Speed X: %.2f px/s",
-                                player->GetCurrentSpeed (deltaTime).x),
-                    10, 40, 10, GRAY);
-          DrawText (TextFormat ("Speed Y: %.2f px/s",
+                    statsSize, statsPosition += statsSize, statsSize, GREEN);
+          DrawText (TextFormat ("Speed X: %.2f px/s, Y: %.2f px/s",
+                                player->GetCurrentSpeed (deltaTime).x,
                                 player->GetCurrentSpeed (deltaTime).y),
-                    10, 50, 10, GRAY);
-          DrawText (TextFormat ("GP%d: %s", gamepad, GetGamepadName (gamepad)),
-                    10, 60, 10, GRAY);
+                    statsSize, statsPosition += statsSize, statsSize, GREEN);
           DrawText (
-              TextFormat ("Left Axis X: %f, Y: %f", leftStickX, leftStickY),
-              10, 70, 10, GRAY);
-          DrawText (TextFormat ("Lifes: %i", player->GetLives ()), 10, 80, 10,
-                    GRAY);
+              TextFormat ("GP%d: %s | LAxis X: %f, Y: %f", gamepad,
+                          GetGamepadName (gamepad), leftStickX, leftStickY),
+              statsSize, statsPosition += statsSize, statsSize, GREEN);
         }
 
       EndDrawing (); // Konec drawing
