@@ -11,7 +11,7 @@ class Player
 {
 public:
   // konstruktor
-  Player (bool debug, float x, float y, float gravity);
+  Player (bool debug, float x, float y, float gravity, int lives);
 
   // destruktor
   ~Player ();
@@ -43,9 +43,6 @@ public:
   // Restartuj třídu Player
   bool GetDoRestart ();
 
-  // chci vyskočit
-  void SetIsInJump (bool jump);
-
 private:
   const bool DEBUG;                // DEBUG režim
   const float playerRadius;        // rádius míče
@@ -70,11 +67,11 @@ private:
   float trailDuration;             // čas jak dlouho se zobrazuje trail
   float currentTime;               // aktuální čas
   int lives;                       // životy
-  bool isInHitbox;                 // je v hitboxu
+  bool isHit;                      // je v hitboxu
   std::vector<Fragment> fragments; // fragmenty při smrti hráče
   bool isAlive;                    // hráč je naživu
   bool doRestart;                  // restartuj třídu Player
-  bool isInJump;                   // je ve výskoku
+  bool IsDaying;                   // umírá
 
   // Výpočet decelerace
   void DecelX (float deltaTime);

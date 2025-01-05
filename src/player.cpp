@@ -1,12 +1,12 @@
 #include "player.hpp"
 
-Player::Player (bool debug, float x, float y, float gravity)
+Player::Player (bool debug, float x, float y, float gravity, int lives)
     : DEBUG (debug), position ({ x, y }), gravity (gravity),
       playerRadius (20.0f), jumpVel (-400.0f), bounceFactor (0.3f),
       squashFactor (0.5f), maxSpeed (600.0f), acceleration (1500.0f),
       deceleration (1500.0f), IsOnTheGround (false), trailDuration (1.5f),
-      lives (1), isInHitbox (false), IsHitSoundPlayed (false), speedX (0),
-      speedY (0), trail (), isAlive (true), doRestart (false)
+      lives (lives), isHit (false), IsHitSoundPlayed (false), speedX (0),
+      speedY (0), trail (), isAlive (true), doRestart (false), IsDaying (false)
 {
   // Načtení zvuku
   bounceSound = LoadSound ("assets/basketball.ogg");
@@ -29,6 +29,11 @@ Player::Update (float direction, float deltaTime, float groundLevel)
 {
   previousPosition = position; // Uložení předchozí pozice
   currentTime = GetTime ();
+  if (isHit and !IsDaying)
+    {
+      lives -= 1;
+      IsDaying = true;
+    }
 
   if (isAlive)
     {
@@ -123,7 +128,7 @@ Player::Update (float direction, float deltaTime, float groundLevel)
 
   // --- Kontrola životů a výbuch ---
 
-  if (lives <= 0)
+  if (IsDaying)
     {
       if (!IsKillSoundPlayed)
         {
@@ -179,7 +184,7 @@ Player::Draw (float deltaTime)
     {
       currentSquash = squashFactor;
     }
-  if (lives > 0)
+  if (!IsDaying)
     {
       DrawTrail ();
       DrawEllipse (position.x, position.y, playerRadius,
@@ -205,8 +210,6 @@ Player::DrawFragments () const
 void
 Player::Jump (float groundLevel)
 {
-  SetIsInJump (true);
-
   if (IsOnTheGround)
     {
       speedY = jumpVel;
@@ -254,21 +257,13 @@ Player::DrawTrail ()
 bool
 Player::CheckCollision (const Rectangle &obstacle)
 {
-  if (!isInHitbox
-      and CheckCollisionCircleRec (position, playerRadius, obstacle))
+  if (CheckCollisionCircleRec (position, playerRadius, obstacle))
     {
-      lives -= 1;
-      isInHitbox = true;
-      return true;
-    }
-  else if (isInHitbox
-           and CheckCollisionCircleRec (position, playerRadius, obstacle))
-    {
+      isHit = true;
       return true;
     }
   else
     {
-      isInHitbox = false;
       return false;
     }
 }
@@ -316,17 +311,5 @@ Player::AccelX (float direction, float deltaTime, float maxSpeed)
   else if (speedX < -maxSpeed)
     {
       speedX = -maxSpeed;
-    }
-}
-void
-Player::SetIsInJump (bool jump)
-{
-  if (jump)
-    {
-      isInJump = true;
-    }
-  else
-    {
-      isInJump = false;
     }
 }
