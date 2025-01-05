@@ -2,8 +2,8 @@
 
 Player::Player (bool debug, float x, float y, float gravity)
     : DEBUG (debug), position ({ x, y }), gravity (gravity),
-      playerRadius (20.0f), jumpVel (-500.0f), bounceFactor (0.3f),
-      squashFactor (0.5f), maxSpeed (800.0f), acceleration (1500.0f),
+      playerRadius (20.0f), jumpVel (-400.0f), bounceFactor (0.3f),
+      squashFactor (0.5f), maxSpeed (600.0f), acceleration (1500.0f),
       deceleration (1500.0f), IsOnTheGround (false), trailDuration (1.5f),
       lives (1), isInHitbox (false), IsHitSoundPlayed (false), speedX (0),
       speedY (0), trail (), isAlive (true), doRestart (false)
@@ -59,6 +59,49 @@ Player::Update (float direction, float deltaTime, float groundLevel)
       // --- Výpočet pohybu v ose X ---
 
       position.x += speedX * deltaTime; // Aktualizace horizontální pozice X
+
+      // Kolize s levým a pravým okrajem obrazovky
+      if (position.x - playerRadius <= 0) // Levý okraj
+        {
+          position.x = playerRadius; // Uprav pozici na okraj
+
+          if (speedY != 0) // Pokud je hráč ve výskoku
+            {
+              speedX = -speedX
+                       - jumpVel
+                             * bounceFactor; // Obrácení horizontální rychlosti
+              if (isInJump)
+                speedY += jumpVel; // Přidání rychlosti výskoku
+            }
+          else
+            {
+              speedX = -speedX
+                       - jumpVel * bounceFactor; // Klasický horizontální odraz
+            }
+
+          PlaySound (bounceSound);
+        }
+      else if (position.x + playerRadius >= GetScreenWidth ()) // Pravý okraj
+        {
+          position.x
+              = GetScreenWidth () - playerRadius; // Uprav pozici na okraj
+
+          if (speedY != 0) // Pokud je hráč ve výskoku
+            {
+              speedX = -speedX
+                       + jumpVel
+                             * bounceFactor; // Obrácení horizontální rychlosti
+              if (isInJump)
+                speedY += jumpVel; // Přidání rychlosti výskoku
+            }
+          else
+            {
+              speedX = -speedX
+                       + jumpVel * bounceFactor; // Klasický horizontální odraz
+            }
+
+          PlaySound (bounceSound);
+        }
 
       if (direction == 0)
         {
@@ -190,6 +233,8 @@ Player::DrawFragments () const
 void
 Player::Jump (float groundLevel)
 {
+  SetIsInJump (true);
+
   if (IsOnTheGround)
     {
       speedY = jumpVel;
@@ -298,5 +343,17 @@ Player::AccelX (float direction, float deltaTime, float maxSpeed)
   else if (speedX < -maxSpeed)
     {
       speedX = -maxSpeed;
+    }
+}
+void
+Player::SetIsInJump (bool jump)
+{
+  if (jump)
+    {
+      isInJump = true;
+    }
+  else
+    {
+      isInJump = false;
     }
 }

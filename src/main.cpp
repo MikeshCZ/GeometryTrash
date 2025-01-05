@@ -44,6 +44,7 @@ main ()
   constexpr float leftStickDeadzoneX = 0.1f; // mrtvá zóna levé páčky v X
   constexpr float leftStickDeadzoneY = 0.1f; // mrtvá zóna levé páčky v Y
   float horizontalInput = 0.0f; // vstup pro horizontální pohyb hráče
+  vector<Obstacle> obstacles;   // vektor překážek
 
   // --- Příprava před spuštěním ---
 
@@ -98,10 +99,43 @@ main ()
   Player *player
       = new Player (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
 
-  // Překážka
-  Obstacle prekazka (
-      DEBUG, (Vector2){ (float)SCREEN_WIDTH / 2.0f, (float)SCREEN_HEIGHT },
-      DARKGRAY);
+  // Překážky
+  obstacles.emplace_back (DEBUG,
+                          (Vector2){
+                              800.0f,
+                              (float)SCREEN_HEIGHT,
+                          },
+                          true, DARKGRAY);
+  obstacles.emplace_back (DEBUG,
+                          (Vector2){
+                              820.0f,
+                              (float)SCREEN_HEIGHT,
+                          },
+                          false, DARKGRAY);
+  obstacles.emplace_back (DEBUG,
+                          (Vector2){
+                              840.0f,
+                              (float)SCREEN_HEIGHT,
+                          },
+                          false, DARKGRAY);
+  obstacles.emplace_back (DEBUG,
+                          (Vector2){
+                              860.0f,
+                              (float)SCREEN_HEIGHT,
+                          },
+                          false, DARKGRAY);
+  obstacles.emplace_back (DEBUG,
+                          (Vector2){
+                              880.0f,
+                              (float)SCREEN_HEIGHT,
+                          },
+                          true, DARKGRAY);
+  obstacles.emplace_back (DEBUG,
+                          (Vector2){
+                              900.0f,
+                              (float)SCREEN_HEIGHT,
+                          },
+                          true, DARKGRAY);
 
   // Grid
   Grid grid (SCREEN_WIDTH, SCREEN_HEIGHT, 20, COL_BACK);
@@ -145,6 +179,10 @@ main ()
           or IsGamepadButtonDown (gamepad, GAMEPAD_BUTTON_RIGHT_FACE_DOWN))
         {
           player->Jump (GROUND_LEVEL);
+        }
+      else
+        {
+          player->SetIsInJump (false);
         }
 
       // Pohyb hráče v X
@@ -191,19 +229,28 @@ main ()
       float deltaTime = GetFrameTime ();
       player->Update (horizontalInput, deltaTime, GROUND_LEVEL);
 
-      // kontrola kolize
-      player->CheckCollision (prekazka.GetHitbox ());
+      // Kontrola kolize s každou překážkou
+      for (auto &obstacle : obstacles)
+        {
+          player->CheckCollision (obstacle.GetHitbox ());
+        }
 
       // Camera target follows player
       camera.target = (Vector2){ player->GetCurrentPosition () };
 
       // --- 3. Vykreslení ---
 
-      BeginDrawing ();          // start drawing
-      ClearBackground (GRAY);   // vykreslení pozadí
-      BeginMode2D (camera);     // kamera
-      grid.Draw ();             // show Grid
-      prekazka.Draw ();         // vykreslí překážku
+      BeginDrawing ();        // start drawing
+      ClearBackground (GRAY); // vykreslení pozadí
+      BeginMode2D (camera);   // kamera
+      grid.Draw ();           // show Grid
+
+      // Vykreslení překážek
+      for (auto &obstacle : obstacles)
+        {
+          obstacle.Draw ();
+        }
+
       player->Draw (deltaTime); // vykreslí hráče
       EndMode2D ();             // Konec kamery
       if (player->GetDoRestart ())
@@ -233,10 +280,10 @@ main ()
                                 player->GetCurrentSpeed (deltaTime).x,
                                 player->GetCurrentSpeed (deltaTime).y),
                     statsSize, statsPosition += statsSize, statsSize, GREEN);
-          DrawText (
-              TextFormat ("GP%d: %s | LAxis X: %f, Y: %f", gamepad,
-                          GetGamepadName (gamepad), leftStickX, leftStickY),
-              statsSize, statsPosition += statsSize, statsSize, GREEN);
+          DrawText (TextFormat ("GP%d: %s | LAxis X: %f, Y: %f", gamepad,
+                                GetGamepadName (gamepad), leftStickX,
+                                leftStickY),
+                    statsSize, statsPosition += statsSize, statsSize, GREEN);
         }
 
       EndDrawing (); // Konec drawing

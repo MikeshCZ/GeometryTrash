@@ -3,8 +3,8 @@
 #include "raylib.h"
 #include "trailPoint.hpp"
 #include <algorithm>
-#include <math.h>
 #include <deque>
+#include <math.h>
 #include <vector>
 
 class Player
@@ -43,6 +43,9 @@ public:
   // Restartuj třídu Player
   bool GetDoRestart ();
 
+  // chci vyskočit
+  void SetIsInJump (bool jump);
+
 private:
   const bool DEBUG;                // DEBUG režim
   const float playerRadius;        // rádius míče
@@ -71,6 +74,7 @@ private:
   std::vector<Fragment> fragments; // fragmenty při smrti hráče
   bool isAlive;                    // hráč je naživu
   bool doRestart;                  // restartuj třídu Player
+  bool isInJump;                   // je ve výskoku
 
   // Výpočet decelerace
   void DecelX (float deltaTime);
