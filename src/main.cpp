@@ -20,14 +20,15 @@ main ()
 
   SetConfigFlags (FLAG_VSYNC_HINT);
   SetConfigFlags (FLAG_MSAA_4X_HINT);
+  SetConfigFlags (FLAG_FULLSCREEN_MODE);
   // SetConfigFlags (FLAG_WINDOW_HIGHDPI);
 
   // --- Konstanty & Proměnné ---
   const string GAME_NAME = "Mikesh's Geometry Trash"; // název hry
   InitWindow (0, 0, GAME_NAME.c_str ());              // inicializace okna
-  constexpr bool DEBUG = true;                        // DEBUG mód
-  bool playIntro = !DEBUG;                            // Přehraj raylib intro
-  bool playMusic = !DEBUG;                            // Hraj muzikuc na pozadí
+  constexpr bool DEBUG = false;                       // DEBUG mód
+  bool playIntro = true;                            // Přehraj raylib intro
+  bool playMusic = true;                            // Hraj muzikuc na pozadí
   bool IsStatsVisible = DEBUG; // Zobrazit statistiky pohybu
   const int CURRENT_MONITOR = GetCurrentMonitor (); // index aktuální obrazovky
   const int SCREEN_WIDTH = GetMonitorWidth (CURRENT_MONITOR);   // šířka obr.
@@ -45,6 +46,7 @@ main ()
   constexpr float leftStickDeadzoneY = 0.1f; // mrtvá zóna levé páčky v Y
   float horizontalInput = 0.0f; // vstup pro horizontální pohyb hráče
   vector<Obstacle> obstacles;   // vektor překážek
+  float deltaTime;              // čas mezi jdnotlivými snímky
 
   // --- Příprava před spuštěním ---
 
@@ -96,8 +98,7 @@ main ()
   // === HLAVNÍ SMYČKA ===
 
   // Hlavní postava hráče
-  Player *player
-      = new Player (DEBUG, SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, GRAVITY);
+  Player *player = new Player (DEBUG, 60, SCREEN_HEIGHT / 2.0f, GRAVITY);
 
   // Překážky
   obstacles.emplace_back (DEBUG,
@@ -111,7 +112,7 @@ main ()
                               820.0f,
                               (float)SCREEN_HEIGHT,
                           },
-                          false, DARKGRAY);
+                          true, DARKGRAY);
   obstacles.emplace_back (DEBUG,
                           (Vector2){
                               840.0f,
@@ -129,7 +130,7 @@ main ()
                               880.0f,
                               (float)SCREEN_HEIGHT,
                           },
-                          true, DARKGRAY);
+                          false, DARKGRAY);
   obstacles.emplace_back (DEBUG,
                           (Vector2){
                               900.0f,
@@ -220,14 +221,18 @@ main ()
           camera.rotation = 0.0f;
         }
 
-      // Camera zoom
-      camera.zoom = clamp (camera.zoom + (float)GetMouseWheelMove () * 0.05f,
-                           0.1f, 3.0f);
-
       // --- 2. Aktualizace stavu ---
 
-      float deltaTime = GetFrameTime ();
+      deltaTime = GetFrameTime ();
       player->Update (horizontalInput, deltaTime, GROUND_LEVEL);
+
+      // Camera zoom
+      float targetZoom = std::clamp (
+          3.0f - std::abs (player->GetCurrentSpeed (deltaTime).z) / 300.0f,
+          0.5f, 2.0f);
+
+      float smoothFactor = 0.01f; // Míra hladkosti
+      camera.zoom += (targetZoom - camera.zoom) * smoothFactor;
 
       // Kontrola kolize s každou překážkou
       for (auto &obstacle : obstacles)
@@ -256,8 +261,7 @@ main ()
       if (player->GetDoRestart ())
         {
           delete player;
-          player = new Player (DEBUG, SCREEN_WIDTH / 2.0f,
-                               SCREEN_HEIGHT / 2.0f, GRAVITY);
+          player = new Player (DEBUG, 60, SCREEN_HEIGHT / 2.0f, GRAVITY);
         }
 
       if (IsStatsVisible)
@@ -272,15 +276,16 @@ main ()
           DrawText (TextFormat ("Resolution: %i x %i, FPS: %i", SCREEN_WIDTH,
                                 SCREEN_HEIGHT, fps),
                     statsSize, statsPosition += statsSize, statsSize, GREEN);
-          DrawText (TextFormat ("Position X: %.2f px, Y: %.2f px",
+          DrawText (TextFormat ("Position X: %.0f px, Y: %.0f px",
                                 player->GetCurrentPosition ().x,
                                 player->GetCurrentPosition ().y),
                     statsSize, statsPosition += statsSize, statsSize, GREEN);
-          DrawText (TextFormat ("Speed X: %.2f px/s, Y: %.2f px/s",
+          DrawText (TextFormat ("Speed X: %4.0f px/s, Y: %4.0f px/s, V: %4.0f",
                                 player->GetCurrentSpeed (deltaTime).x,
-                                player->GetCurrentSpeed (deltaTime).y),
+                                player->GetCurrentSpeed (deltaTime).y,
+                                player->GetCurrentSpeed(deltaTime).z),
                     statsSize, statsPosition += statsSize, statsSize, GREEN);
-          DrawText (TextFormat ("GP%d: %s | LAxis X: %f, Y: %f", gamepad,
+          DrawText (TextFormat ("GP%d: %s | LAxis X: %1.3f, Y: %1.3f", gamepad,
                                 GetGamepadName (gamepad), leftStickX,
                                 leftStickY),
                     statsSize, statsPosition += statsSize, statsSize, GREEN);

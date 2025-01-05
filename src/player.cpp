@@ -61,45 +61,17 @@ Player::Update (float direction, float deltaTime, float groundLevel)
       position.x += speedX * deltaTime; // Aktualizace horizontální pozice X
 
       // Kolize s levým a pravým okrajem obrazovky
-      if (position.x - playerRadius <= 0) // Levý okraj
+      if (position.x - playerRadius <= 0) // levý okraj
         {
-          position.x = playerRadius; // Uprav pozici na okraj
-
-          if (speedY != 0) // Pokud je hráč ve výskoku
-            {
-              speedX = -speedX
-                       - jumpVel
-                             * bounceFactor; // Obrácení horizontální rychlosti
-              if (isInJump)
-                speedY += jumpVel; // Přidání rychlosti výskoku
-            }
-          else
-            {
-              speedX = -speedX
-                       - jumpVel * bounceFactor; // Klasický horizontální odraz
-            }
-
+          position.x = playerRadius;                 // uprav pozici na okraj
+          speedX = -speedX - jumpVel * bounceFactor; // otočení rychlosti
           PlaySound (bounceSound);
         }
-      else if (position.x + playerRadius >= GetScreenWidth ()) // Pravý okraj
+      else if (position.x + playerRadius >= GetScreenWidth ()) // pravý okraj
         {
           position.x
-              = GetScreenWidth () - playerRadius; // Uprav pozici na okraj
-
-          if (speedY != 0) // Pokud je hráč ve výskoku
-            {
-              speedX = -speedX
-                       + jumpVel
-                             * bounceFactor; // Obrácení horizontální rychlosti
-              if (isInJump)
-                speedY += jumpVel; // Přidání rychlosti výskoku
-            }
-          else
-            {
-              speedX = -speedX
-                       + jumpVel * bounceFactor; // Klasický horizontální odraz
-            }
-
+              = GetScreenWidth () - playerRadius;    // iprav pozici na okraj
+          speedX = -speedX + jumpVel * bounceFactor; // otočení rychlosti
           PlaySound (bounceSound);
         }
 
@@ -241,13 +213,14 @@ Player::Jump (float groundLevel)
     }
 }
 
-Vector2
+Vector3
 Player::GetCurrentSpeed (float deltaTime) const
 {
   float x = (position.x - previousPosition.x) / deltaTime;
   float y = (position.y - previousPosition.y) / deltaTime;
+  float vectorSpeed = std::sqrt (x * x + y * y);
 
-  return { x, y };
+  return { x, y, vectorSpeed };
 }
 
 Vector2

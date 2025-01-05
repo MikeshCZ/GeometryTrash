@@ -25,8 +25,8 @@ public:
   // metoda pro skok
   void Jump (float groundLevel);
 
-  // Výpočet aktuální rychlosti hráče
-  Vector2 GetCurrentSpeed (float deltaTime) const;
+  // Výpočet aktuální rychlosti hráče v x=x, y=y, z=vektorová rychlost
+  Vector3 GetCurrentSpeed (float deltaTime) const;
 
   // Výpočet aktuální pozice
   Vector2 GetCurrentPosition () const;
