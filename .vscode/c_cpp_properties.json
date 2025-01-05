@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/opt/homebrew/include/**"
             ],
             "defines": [],
             "macFrameworkPath": [
@@ -11,7 +12,7 @@
             ],
             "cStandard": "c23",
             "cppStandard": "c++23",
-            "intelliSenseMode": "macos-gcc-x64",
+            "intelliSenseMode": "macos-gcc-arm64",
             "compilerPath": "/usr/bin/g++"
         },
         {
@@ -19,10 +20,12 @@
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "defines": [],
-            "macFrameworkPath": [
-                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
             ],
+            "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
             "cStandard": "c23",
             "cppStandard": "c++23",
             "intelliSenseMode": "windows-gcc-x64"
