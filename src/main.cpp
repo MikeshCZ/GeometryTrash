@@ -104,7 +104,7 @@ main ()
 
   // Hlavní postava hráče
   Player *player
-      = new Player (DEBUG, 60, SCREEN_HEIGHT / 2.0f, GRAVITY, lives);
+      = new Player (DEBUG, 60, SCREEN_HEIGHT / 2.0f, GRAVITY, lives,SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // Překážky
   obstacles.emplace_back (DEBUG,
@@ -243,7 +243,7 @@ main ()
           lives--;
           delete player;
           player
-              = new Player (DEBUG, 60, SCREEN_HEIGHT / 2.0f, GRAVITY, lives);
+              = new Player (DEBUG, 60, SCREEN_HEIGHT / 2.0f, GRAVITY, lives,SCREEN_WIDTH, SCREEN_HEIGHT);
         }
 
       // --- 3. Vykreslení ---
