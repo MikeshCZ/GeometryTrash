@@ -11,7 +11,8 @@ class Player
 {
 public:
   // konstruktor
-  Player (bool debug, float x, float y, float gravity, int lives);
+  Player (bool debug, float x, float y, float gravity, int lives,
+          float levelWidth, float levelHeight);
 
   // destruktor
   ~Player ();
@@ -72,6 +73,8 @@ private:
   bool isAlive;                    // hráč je naživu
   bool doRestart;                  // restartuj třídu Player
   bool IsDaying;                   // umírá
+  float levelWidth;                // výška levelu
+  float levelHeight;               // šířka levelu
 
   // Výpočet decelerace
   void DecelX (float deltaTime);

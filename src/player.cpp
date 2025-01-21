@@ -1,12 +1,14 @@
 #include "player.hpp"
 
-Player::Player (bool debug, float x, float y, float gravity, int lives)
+Player::Player (bool debug, float x, float y, float gravity, int lives,
+                float levelWidth, float levelHeight)
     : DEBUG (debug), position ({ x, y }), gravity (gravity),
       playerRadius (20.0f), jumpVel (-400.0f), bounceFactor (0.3f),
       squashFactor (0.5f), maxSpeed (600.0f), acceleration (1500.0f),
       deceleration (1500.0f), IsOnTheGround (false), trailDuration (1.5f),
       lives (lives), isHit (false), IsHitSoundPlayed (false), speedX (0),
-      speedY (0), trail (), isAlive (true), doRestart (false), IsDaying (false)
+      speedY (0), trail (), isAlive (true), doRestart (false),
+      IsDaying (false), levelWidth (levelWidth), levelHeight (levelHeight)
 {
   // Načtení zvuku
   bounceSound = LoadSound ("assets/basketball.ogg");
@@ -72,10 +74,9 @@ Player::Update (float direction, float deltaTime, float groundLevel)
           speedX = -speedX - jumpVel * bounceFactor; // otočení rychlosti
           PlaySound (bounceSound);
         }
-      else if (position.x + playerRadius >= GetScreenWidth ()) // pravý okraj
+      else if (position.x + playerRadius >= levelWidth) // pravý okraj
         {
-          position.x
-              = GetScreenWidth () - playerRadius;    // iprav pozici na okraj
+          position.x = levelWidth - playerRadius;    // uprav pozici na okraj
           speedX = -speedX + jumpVel * bounceFactor; // otočení rychlosti
           PlaySound (bounceSound);
         }
