@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.14)
 
 # name of the folder as project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+# Set the vcpkg toolchain file if VCPKG_ROOT is defined
+if(DEFINED ENV{VCPKG_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+endif()
+
 project(${PROJECT_NAME})
 
 # Raylib
@@ -38,7 +44,7 @@ if (NOT raygui_FOUND)
         GIT_PROGRESS TRUE
     )
     FetchContent_GetProperties(raygui)
-    if (NOT raygui_POPULATED) # Have we downloaded raylib yet?
+    if (NOT raygui_POPULATED) # Have we downloaded raygui yet?
         set(FETCHCONTENT_QUIET NO)
         message(STATUS "Starting raygui download. Please wait ...")
         FetchContent_MakeAvailable(raygui)

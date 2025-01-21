@@ -19,8 +19,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/vcpkg/installed/x64-windows/include/**",
-                "${workspaceFolder}/build/_deps/raygui-src/**"
+                "${env:VCPKG_ROOT}/installed/x64-windows/include/**"
             ],
             "defines": [
                 "_DEBUG",
